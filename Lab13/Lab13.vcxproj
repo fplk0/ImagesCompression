@@ -90,19 +90,19 @@
     <Text Include="Resources\YuraTest.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Classes\Codecs\GenericCodec.h" />
+    <ClInclude Include="Classes\Codecs\HuffmanCodec.h" />
+    <ClInclude Include="Classes\Codecs\JPEGCodec\JPEGCodec.h" />
+    <ClInclude Include="Classes\Codecs\LZWCodec.h" />
+    <ClInclude Include="Classes\Codecs\RLECodec.h" />
     <ClInclude Include="Classes\Object\Atomic.h" />
-    <ClInclude Include="Classes\Encoders\GenericEncoder.h" />
-    <ClInclude Include="Classes\Encoders\LZWEncoder.h" />
     <ClInclude Include="Classes\Object\Object.h" />
-    <ClInclude Include="Classes\Encoders\HuffmanEncoder.h" />
     <ClInclude Include="Classes\Image\Image.h" />
     <ClInclude Include="Classes\ColorSpaces\ColorSpace.h" />
     <ClInclude Include="Classes\ColorSpaces\ColorSpaceRGB.h" />
     <ClInclude Include="Classes\ColorSpaces\ColorSpaceYCbCr.h" />
-    <ClInclude Include="JPEGEncoder.h" />
     <ClInclude Include="Other\stdafx.h" />
     <ClInclude Include="Other\targetver.h" />
-    <ClInclude Include="Classes\Encoders\RLEEncoder.h" />
     <ClInclude Include="Classes\Stream\SFStream.h" />
     <ClInclude Include="Classes\Stream\Reader\SFFileStreamReader.h" />
     <ClInclude Include="Classes\Stream\Writer\SFFileStreamWriter.h" />
@@ -113,21 +113,23 @@
     <ClInclude Include="Classes\Stream\Writer\SFMemoryStreamWriter.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Classes\Encoders\GenericEncoder.cpp" />
-    <ClCompile Include="Classes\Encoders\HuffmanEncoder.cpp" />
+    <ClCompile Include="Classes\Codecs\GenericCodec.cpp" />
+    <ClCompile Include="Classes\Codecs\HuffmanCodec.cpp" />
+    <ClCompile Include="Classes\Codecs\JPEGCodec\JPEGCodec.cpp" />
+    <ClCompile Include="Classes\Codecs\JPEGCodec\JPEGCodecDecode.cpp" />
+    <ClCompile Include="Classes\Codecs\JPEGCodec\JPEGCodecEncode.cpp" />
+    <ClCompile Include="Classes\Codecs\LZWCodec.cpp" />
+    <ClCompile Include="Classes\Codecs\RLECodec.cpp" />
     <ClCompile Include="Classes\Image\Image.cpp" />
     <ClCompile Include="Classes\ColorSpaces\ColorSpace.cpp" />
     <ClCompile Include="Classes\ColorSpaces\ColorSpaceRGB.cpp" />
     <ClCompile Include="Classes\ColorSpaces\ColorSpaceYCbCr.cpp" />
-    <ClCompile Include="JPEGEncoder.cpp" />
     <ClCompile Include="Other\Lab13.cpp" />
-    <ClCompile Include="Classes\Encoders\LZWEncoder.cpp" />
     <ClCompile Include="Classes\Object\Object.cpp" />
     <ClCompile Include="Other\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Classes\Encoders\RLEEncoder.cpp" />
     <ClCompile Include="Classes\Stream\SFStream.cpp" />
     <ClCompile Include="Classes\Stream\Reader\SFFileStreamReader.cpp" />
     <ClCompile Include="Classes\Stream\Writer\SFFileStreamWriter.cpp" />

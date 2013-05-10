@@ -46,12 +46,6 @@
     <Text Include="Resources\RLETest.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Classes\Encoders\GenericEncoder.h">
-      <Filter>Classes\Encoders</Filter>
-    </ClInclude>
-    <ClInclude Include="Classes\Encoders\LZWEncoder.h">
-      <Filter>Classes\Encoders</Filter>
-    </ClInclude>
     <ClInclude Include="Classes\Object\Object.h">
       <Filter>Classes\Object</Filter>
     </ClInclude>
@@ -63,12 +57,6 @@
     </ClInclude>
     <ClInclude Include="Classes\Object\Atomic.h">
       <Filter>Classes\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Classes\Encoders\HuffmanEncoder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Classes\Encoders\RLEEncoder.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Classes\Stream\SFStream.h">
       <Filter>Header Files</Filter>
@@ -106,17 +94,23 @@
     <ClInclude Include="Classes\ColorSpaces\ColorSpaceYCbCr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="JPEGEncoder.h">
+    <ClInclude Include="Classes\Codecs\GenericCodec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Codecs\HuffmanCodec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Codecs\JPEGCodec\JPEGCodec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Codecs\LZWCodec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Codecs\RLECodec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Classes\Encoders\GenericEncoder.cpp">
-      <Filter>Classes\Encoders</Filter>
-    </ClCompile>
-    <ClCompile Include="Classes\Encoders\LZWEncoder.cpp">
-      <Filter>Classes\Encoders</Filter>
-    </ClCompile>
     <ClCompile Include="Classes\Object\Object.cpp">
       <Filter>Classes\Object</Filter>
     </ClCompile>
@@ -124,12 +118,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Other\stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Classes\Encoders\HuffmanEncoder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Classes\Encoders\RLEEncoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Classes\Stream\SFStream.cpp">
@@ -168,7 +156,25 @@
     <ClCompile Include="Classes\ColorSpaces\ColorSpaceYCbCr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="JPEGEncoder.cpp">
+    <ClCompile Include="Classes\Codecs\GenericCodec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Codecs\HuffmanCodec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Codecs\JPEGCodec\JPEGCodec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Codecs\JPEGCodec\JPEGCodecDecode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Codecs\JPEGCodec\JPEGCodecEncode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Codecs\LZWCodec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Codecs\RLECodec.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,19 +1,19 @@
 #include "stdafx.h"
-#include "LZWEncoder.h"
+#include "LZWCodec.h"
 
 #include <vector>
 using namespace std;
 
-DEFINE_OBJECT_IMPL(LZWEncoder);
+DEFINE_OBJECT_IMPL(LZWCodec);
 
-LZWEncoder* LZWEncoder::initWithFileNames(const wstring &sourceFileName, const wstring &destinationFileName)
+LZWCodec* LZWCodec::initWithFileNames(const wstring &sourceFileName, const wstring &destinationFileName)
 {
-	LZWEncoder *rv = static_cast<LZWEncoder*>(super::initWithFileNames(sourceFileName, destinationFileName));
+	LZWCodec *rv = static_cast<LZWCodec*>(super::initWithFileNames(sourceFileName, destinationFileName));
 	rv->maxCodeLength = defaultCodeLength;
 	return rv;
 }
 
-void LZWEncoder::runEncode()
+void LZWCodec::runEncode()
 {
 	reader->openStream();
 	writer->openStream();
@@ -78,7 +78,7 @@ void LZWEncoder::runEncode()
 	delete [] codes;
 }
 
-void LZWEncoder::runDecode()
+void LZWCodec::runDecode()
 {
 	reader->openStream();
 	writer->openStream();
@@ -157,6 +157,6 @@ void LZWEncoder::runDecode()
 	delete [] codes;
 }
 
-LZWEncoder::~LZWEncoder(void)
+LZWCodec::~LZWCodec(void)
 {
 }

@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "RLEEncoder.h"
+#include "RLECodec.h"
 
-DEFINE_OBJECT_IMPL(RLEEncoder);
+DEFINE_OBJECT_IMPL(RLECodec);
 
-void RLEEncoder::_flush(byte *buf, bool same, int count)
+void RLECodec::_flush(byte *buf, bool same, int count)
 {
 	if (count == 0)
 		return;
@@ -22,7 +22,7 @@ void RLEEncoder::_flush(byte *buf, bool same, int count)
 	}
 }
 
-void RLEEncoder::runEncode()
+void RLECodec::runEncode()
 {
 	reader->openStream();
 	writer->openStream();
@@ -99,7 +99,7 @@ void RLEEncoder::runEncode()
 	writer->closeStream();
 }
 
-void RLEEncoder::runDecode()
+void RLECodec::runDecode()
 {
 	reader->openStream();
 	writer->openStream();
@@ -147,6 +147,6 @@ void RLEEncoder::runDecode()
 	writer->closeStream();
 }
 
-RLEEncoder::~RLEEncoder(void)
+RLECodec::~RLECodec(void)
 {
 }

@@ -2,13 +2,13 @@
 
 #include "SFFileStreamReader.h"
 #include "SFFileStreamWriter.h"
-#include "GenericEncoder.h"
+#include "GenericCodec.h"
 
-DEFINE_OBJECT_IMPL(GenericEncoder);
+DEFINE_OBJECT_IMPL(GenericCodec);
 
-GenericEncoder* GenericEncoder::initWithFileNames(const wstring &_sourceFileName, const wstring &_destinationFileName)
+GenericCodec* GenericCodec::initWithFileNames(const wstring &_sourceFileName, const wstring &_destinationFileName)
 {
-	GenericEncoder *rv = this->initWithStreams(NULL, NULL);
+	GenericCodec *rv = this->initWithStreams(NULL, NULL);
 	if (rv != NULL)
 	{
 		rv->reader = NULL;
@@ -21,9 +21,9 @@ GenericEncoder* GenericEncoder::initWithFileNames(const wstring &_sourceFileName
 	return rv;
 }
 
-GenericEncoder* GenericEncoder::initWithStreams(SFStreamReader *source, SFStreamWriter *destination)
+GenericCodec* GenericCodec::initWithStreams(SFStreamReader *source, SFStreamWriter *destination)
 {
-	GenericEncoder *rv =  static_cast<GenericEncoder*>(super::init());
+	GenericCodec *rv =  static_cast<GenericCodec*>(super::init());
 	if (rv != NULL)
 	{
 		rv->reader = NULL;
@@ -35,7 +35,7 @@ GenericEncoder* GenericEncoder::initWithStreams(SFStreamReader *source, SFStream
 	return rv;
 }
 
-void GenericEncoder::setSourceFileName(const wstring &_sourceFileName)
+void GenericCodec::setSourceFileName(const wstring &_sourceFileName)
 {
 	if (reader != NULL)
 	{
@@ -46,7 +46,7 @@ void GenericEncoder::setSourceFileName(const wstring &_sourceFileName)
 	reader = SFFileStreamReader::alloc()->initWithFileName(_sourceFileName);
 }
 
-void GenericEncoder::setDestinationFileName(const wstring &_destinationFileName)
+void GenericCodec::setDestinationFileName(const wstring &_destinationFileName)
 {
 	if (writer != NULL)
 	{
@@ -57,7 +57,7 @@ void GenericEncoder::setDestinationFileName(const wstring &_destinationFileName)
 	writer = SFFileStreamWriter::alloc()->initWithFileName(_destinationFileName);
 }
 
-void GenericEncoder::setSourceStream(SFStreamReader *source)
+void GenericCodec::setSourceStream(SFStreamReader *source)
 {
 	if (this->reader != NULL)
 		this->reader->release();
@@ -66,7 +66,7 @@ void GenericEncoder::setSourceStream(SFStreamReader *source)
 		this->reader->retain();
 }
 
-void GenericEncoder::setDestinationStream(SFStreamWriter *dest)
+void GenericCodec::setDestinationStream(SFStreamWriter *dest)
 {
 	if (this->writer != NULL)
 		this->writer->release();
@@ -75,7 +75,7 @@ void GenericEncoder::setDestinationStream(SFStreamWriter *dest)
 		this->writer->retain();
 }
 
-void GenericEncoder::free()
+void GenericCodec::free()
 {
 	reader->release();
 	writer->release();

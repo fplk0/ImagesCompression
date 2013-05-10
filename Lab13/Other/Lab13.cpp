@@ -3,9 +3,9 @@
 
 #include "stdafx.h"
 
-#include "LZWEncoder.h"
-#include "HuffmanEncoder.h"
-#include "RLEEncoder.h"
+#include "LZWCodec.h"
+#include "HuffmanCodec.h"
+#include "RLECodec.h"
 
 #include "SFMemoryStreamReader.h"
 #include "SFMemoryStreamWriter.h"
@@ -14,7 +14,7 @@
 #include "ColorSpaceYCbCr.h"
 
 #include "Image.h"
-#include "JPEGEncoder.h"
+#include "JPEGCodec.h"
 
 #include <Windows.h>
 
@@ -29,37 +29,37 @@ void testMemory()
 	int testLen = strlen(testData);
 	SFData *td = SFData::alloc()->initWithData((byte*)testData, testLen, 0);
 
-	GenericEncoder::GenericEncoderMetaClass *meta;// = &GenericEncoder::metaObject;
-	//meta = &RLEEncoder::metaObject;
-	//meta = &LZWEncoder::metaObject;
-	meta = &HuffmanEncoder::metaObject;
+	GenericCodec::GenericCodecMetaClass *meta;// = &GenericCodec::metaObject;
+	//meta = &RLECodec::metaObject;
+	//meta = &LZWCodec::metaObject;
+	meta = &HuffmanCodec::metaObject;
 
-	GenericEncoder *testEncoder = meta->alloc();
-	//testEncoder->initWithFileNames(L"Resources\\testInput.txt", L"Resources\\testEncoded.txt");
-	//testEncoder->initWithFileNames(L"Resources\\RLETest.txt", L"Resources\\testEncoded.txt");
-	//testEncoder->initWithFileNames(L"Resources\\YuraTest.txt", L"Resources\\testEncoded.txt");
-	//testEncoder->initWithFileNames(L"D:/GoT.mkv", L"D:/Got_Encoded");
+	GenericCodec *testCodec = meta->alloc();
+	//testCodec->initWithFileNames(L"Resources\\testInput.txt", L"Resources\\testEncoded.txt");
+	//testCodec->initWithFileNames(L"Resources\\RLETest.txt", L"Resources\\testEncoded.txt");
+	//testCodec->initWithFileNames(L"Resources\\YuraTest.txt", L"Resources\\testEncoded.txt");
+	//testCodec->initWithFileNames(L"D:/GoT.mkv", L"D:/Got_Encoded");
 	//wstring fName(L"D:\\Films\\Game of Thrones\\S3\\Game.of.Thrones.S03E04.720p.rus.LostFilm.TV.mkv");
-	//testEncoder->initWithFileNames(fName, L"D:/Got_Encoded");
+	//testCodec->initWithFileNames(fName, L"D:/Got_Encoded");
 
 	SFMemoryStreamReader *sr = SFMemoryStreamReader::alloc()->initWithData(td);
 	SFMemoryStreamWriter *sw = SFMemoryStreamWriter::alloc()->initDynamic();
-	testEncoder->initWithStreams(sr, sw);
+	testCodec->initWithStreams(sr, sw);
 
 	clock_t encodeStart = clock();
 
-	testEncoder->runEncode();
+	testCodec->runEncode();
 
 	printf("Encode time: %lf\n", (clock() - encodeStart) / (double)CLOCKS_PER_SEC);
 
-	testEncoder->release();
+	testCodec->release();
 
 	SFData *encodedData = sw->getData();
 	encodedData->retain();
 	sw->release();
 	sr->release();
 	
-	GenericEncoder *testDecoder = static_cast<GenericEncoder*>(meta->alloc());
+	GenericCodec *testDecoder = static_cast<GenericCodec*>(meta->alloc());
 	//testDecoder->initWithFileNames(L"Resources\\testEncoded.txt", L"Resources\\testDecoded.txt");
 	//testDecoder->initWithFileNames(L"D:/Got_Encoded", L"D:/GoT_decoded.mkv");
 
@@ -92,28 +92,28 @@ void testMemory()
 
 void testFiles()
 {
-		//GenericEncoder *testEncoder = LZWEncoder::alloc();
-	//GenericEncoder *testEncoder = HuffmanEncoder::alloc();
-	GenericEncoder *testEncoder = RLEEncoder::alloc();
+		//GenericCodec *testCodec = LZWCodec::alloc();
+	//GenericCodec *testCodec = HuffmanCodec::alloc();
+	GenericCodec *testCodec = RLECodec::alloc();
 
-	//testEncoder->initWithFileNames(L"Resources\\testInput.txt", L"Resources\\testEncoded.txt");
-	//testEncoder->initWithFileNames(L"Resources\\RLETest.txt", L"Resources\\testEncoded.txt");
-	//testEncoder->initWithFileNames(L"Resources\\YuraTest.txt", L"Resources\\testEncoded.txt");
-	//testEncoder->initWithFileNames(L"D:/GoT.mkv", L"D:/Got_Encoded");
+	//testCodec->initWithFileNames(L"Resources\\testInput.txt", L"Resources\\testEncoded.txt");
+	//testCodec->initWithFileNames(L"Resources\\RLETest.txt", L"Resources\\testEncoded.txt");
+	//testCodec->initWithFileNames(L"Resources\\YuraTest.txt", L"Resources\\testEncoded.txt");
+	//testCodec->initWithFileNames(L"D:/GoT.mkv", L"D:/Got_Encoded");
 	//wstring fName(L"D:\\Films\\Game of Thrones\\S3\\Game.of.Thrones.S03E04.720p.rus.LostFilm.TV.mkv");
-	//testEncoder->initWithFileNames(fName, L"D:/Got_Encoded");
+	//testCodec->initWithFileNames(fName, L"D:/Got_Encoded");
 
 	clock_t encodeStart = clock();
 
-	testEncoder->runEncode();
+	testCodec->runEncode();
 
 	printf("Encode time: %lf\n", (clock() - encodeStart) / (double)CLOCKS_PER_SEC);
 
-	testEncoder->release();
+	testCodec->release();
 
-	//GenericEncoder *testDecoder = LZWEncoder::alloc();
-	/*GenericEncoder *testDecoder = HuffmanEncoder::alloc();*/
-	GenericEncoder *testDecoder = RLEEncoder::alloc();
+	//GenericCodec *testDecoder = LZWCodec::alloc();
+	/*GenericCodec *testDecoder = HuffmanCodec::alloc();*/
+	GenericCodec *testDecoder = RLECodec::alloc();
 	testDecoder->initWithFileNames(L"Resources\\testEncoded.txt", L"Resources\\testDecoded.txt");
 	//testDecoder->initWithFileNames(L"D:/Got_Encoded", L"D:/GoT_decoded.mkv");
 	clock_t decodeStart = clock();
@@ -139,7 +139,7 @@ DWORD __stdcall threadTest(void *param)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	JPEGEncoder *test = JPEGEncoder::alloc()->init();
+	JPEGCodec *test = JPEGCodec::alloc()->init();
 	//printf("%s\n%s\n", str2(a), str(a));
 
 	const wstring *tt = test->metaClass()->className();

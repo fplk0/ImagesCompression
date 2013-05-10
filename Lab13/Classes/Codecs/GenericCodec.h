@@ -9,11 +9,11 @@
 
 #define super Object
 
-class GenericEncoder : public Object
+class GenericCodec : public Object
 {
-	START_METACLASS_DECLARATION(GenericEncoder, super);
-	DEFINE_METACLASS_ABSTRACT_ALLOC(GenericEncoder);
-	END_METACLASS_DECLARATION(GenericEncoder, super);
+	START_METACLASS_DECLARATION(GenericCodec, super);
+	DEFINE_METACLASS_ABSTRACT_ALLOC(GenericCodec);
+	END_METACLASS_DECLARATION(GenericCodec, super);
 
 protected:
 	SFStreamReader *reader;
@@ -21,8 +21,8 @@ protected:
 
 	virtual void free();
 public:
-	virtual GenericEncoder* initWithFileNames(const wstring &sourceFileName = L"", const wstring &destinationFileName = L"");
-	virtual GenericEncoder* initWithStreams(SFStreamReader *source, SFStreamWriter *destination);
+	virtual GenericCodec* initWithFileNames(const wstring &sourceFileName = L"", const wstring &destinationFileName = L"");
+	virtual GenericCodec* initWithStreams(SFStreamReader *source, SFStreamWriter *destination);
 
 	void setSourceFileName(const wstring &_sourceFileName);
 	void setDestinationFileName(const wstring &_destinationFileName);

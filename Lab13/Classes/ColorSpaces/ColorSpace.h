@@ -4,6 +4,9 @@
 
 using namespace std;
 
+#undef super
+#undef self
+
 #define super Object
 #define self ColorSpace
 

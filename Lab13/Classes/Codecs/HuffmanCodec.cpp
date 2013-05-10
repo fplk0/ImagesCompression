@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include <queue>
 
-#include "HuffmanEncoder.h"
+#include "HuffmanCodec.h"
 
-DEFINE_OBJECT_IMPL(HuffmanEncoder);
+DEFINE_OBJECT_IMPL(HuffmanCodec);
 
 typedef pair<long long, int> pll;
 
-void HuffmanEncoder::buildEncodeCodes()
+void HuffmanCodec::buildEncodeCodes()
 {
 	long long freqTable[256];
 
@@ -75,7 +75,7 @@ void HuffmanEncoder::buildEncodeCodes()
 	fwprintf(stderr, L"Table was built\n");
 }
 
-void HuffmanEncoder::buildDecodeCodes()
+void HuffmanCodec::buildDecodeCodes()
 {
 	bool setLeft[512];
 	memset(setLeft, 0, sizeof(setLeft));
@@ -98,7 +98,7 @@ void HuffmanEncoder::buildDecodeCodes()
 	rootIndex = 510;
 }
 
-void HuffmanEncoder::runEncode()
+void HuffmanCodec::runEncode()
 {
 	reader->openStream();
 
@@ -132,7 +132,7 @@ void HuffmanEncoder::runEncode()
 	writer->closeStream();
 }
 
-void HuffmanEncoder::runDecode()
+void HuffmanCodec::runDecode()
 {
 	reader->openStream();
 	writer->openStream();
@@ -167,6 +167,6 @@ void HuffmanEncoder::runDecode()
 	writer->closeStream();
 }
 
-HuffmanEncoder::~HuffmanEncoder(void)
+HuffmanCodec::~HuffmanCodec(void)
 {
 }

@@ -1,15 +1,15 @@
 #pragma once
-#include "GenericEncoder.h"
+#include "GenericCodec.h"
 
 #undef super
-#define super GenericEncoder
+#define super GenericCodec
 
-class HuffmanEncoder :
-	public GenericEncoder
+class HuffmanCodec :
+	public GenericCodec
 {
-	START_METACLASS_DECLARATION(HuffmanEncoder, super);
-	DEFINE_METACLASS_DEFAULT_ALLOC(HuffmanEncoder);
-	END_METACLASS_DECLARATION(HuffmanEncoder, super);
+	START_METACLASS_DECLARATION(HuffmanCodec, super);
+	DEFINE_METACLASS_DEFAULT_ALLOC(HuffmanCodec);
+	END_METACLASS_DECLARATION(HuffmanCodec, super);
 
 	struct HuffmanTreeNode
 	{
@@ -29,5 +29,5 @@ class HuffmanEncoder :
 public:
 	virtual void runEncode();
 	virtual void runDecode();
-	virtual ~HuffmanEncoder(void);
+	virtual ~HuffmanCodec(void);
 };

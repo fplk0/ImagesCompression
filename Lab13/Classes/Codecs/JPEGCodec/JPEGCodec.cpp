@@ -1,10 +1,10 @@
 #include "stdafx.h"
 
-#include "JPEGEncoder.h"
+#include "JPEGCodec.h"
 
 DEFINE_OBJECT_IMPL(self);
 
-JPEGEncoder* JPEGEncoder::init()
+JPEGCodec* JPEGCodec::init()
 {
 	super::init();
 
@@ -13,7 +13,7 @@ JPEGEncoder* JPEGEncoder::init()
 	return this;
 }
 
-void JPEGEncoder::free()
+void JPEGCodec::free()
 {
 	image->release();
 	image = NULL;
@@ -21,7 +21,7 @@ void JPEGEncoder::free()
 	super::free();
 }
 
-JPEGEncoder::~JPEGEncoder(void)
+JPEGCodec::~JPEGCodec(void)
 {
 
 }

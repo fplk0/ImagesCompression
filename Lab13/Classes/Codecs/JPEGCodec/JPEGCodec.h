@@ -1,15 +1,15 @@
 #pragma once
 
-#include "GenericEncoder.h"
+#include "GenericCodec.h"
 #include "Image.h"
 
 #undef super
 #undef self
-#define super GenericEncoder
-#define self JPEGEncoder
+#define super GenericCodec
+#define self JPEGCodec
 
-class JPEGEncoder :
-	public GenericEncoder
+class JPEGCodec :
+	public GenericCodec
 {
 	DEFAULT_METACLASS_DECLARATION(self, super);
 
@@ -19,7 +19,7 @@ class JPEGEncoder :
 
 public:
 	
-	virtual JPEGEncoder* init();
+	virtual JPEGCodec* init();
 
 	Image* getImage() { return image; };
 	void setImage(Image *img) {  }
@@ -37,6 +37,6 @@ private:
 
 
 protected:
-	virtual ~JPEGEncoder(void);
+	virtual ~JPEGCodec(void);
 };
 
