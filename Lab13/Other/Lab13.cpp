@@ -136,9 +136,11 @@ DWORD __stdcall threadTest(void *param)
 	return 0;
 }
 
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	JPEGEncoder *test = JPEGEncoder::alloc()->init();
+	//printf("%s\n%s\n", str2(a), str(a));
 
 	const wstring *tt = test->metaClass()->className();
 	int t = test->metaClass()->className()->length();

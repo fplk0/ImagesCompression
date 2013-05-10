@@ -15,6 +15,8 @@ class JPEGEncoder :
 
 	Image *image;
 
+	virtual void free();
+
 public:
 	
 	virtual JPEGEncoder* init();
@@ -22,9 +24,19 @@ public:
 	Image* getImage() { return image; };
 	void setImage(Image *img) {  }
 
+//Encoding
+public:
 	virtual void runEncode();
-	virtual void runDecode();
+private:
 
+
+//Decoding
+public:
+	virtual void runDecode();
+private:
+
+
+protected:
 	virtual ~JPEGEncoder(void);
 };
 

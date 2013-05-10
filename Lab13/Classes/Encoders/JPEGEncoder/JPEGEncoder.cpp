@@ -13,14 +13,12 @@ JPEGEncoder* JPEGEncoder::init()
 	return this;
 }
 
-void JPEGEncoder::runEncode()
+void JPEGEncoder::free()
 {
+	image->release();
+	image = NULL;
 
-}
-
-void JPEGEncoder::runDecode()
-{
-
+	super::free();
 }
 
 JPEGEncoder::~JPEGEncoder(void)
