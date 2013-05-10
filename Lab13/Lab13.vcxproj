@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2762EF6B-104F-40A8-9931-5E421C37C17F}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Lab13</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)/Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)/Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="Resources\backups.txt" />
+    <Text Include="Resources\ReadMe.txt" />
+    <Text Include="Resources\RLETest.txt" />
+    <Text Include="Resources\testDecoded.txt" />
+    <Text Include="Resources\testEncoded.txt" />
+    <Text Include="Resources\testInput.txt" />
+    <Text Include="Resources\YuraTest.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Classes\Object\Atomic.h" />
+    <ClInclude Include="Classes\Encoders\GenericEncoder.h" />
+    <ClInclude Include="Classes\Encoders\LZWEncoder.h" />
+    <ClInclude Include="Classes\Object\Object.h" />
+    <ClInclude Include="Classes\Encoders\HuffmanEncoder.h" />
+    <ClInclude Include="Classes\Image\Image.h" />
+    <ClInclude Include="Classes\ColorSpaces\ColorSpace.h" />
+    <ClInclude Include="Classes\ColorSpaces\ColorSpaceRGB.h" />
+    <ClInclude Include="Classes\ColorSpaces\ColorSpaceYCbCr.h" />
+    <ClInclude Include="JPEGEncoder.h" />
+    <ClInclude Include="Other\stdafx.h" />
+    <ClInclude Include="Other\targetver.h" />
+    <ClInclude Include="Classes\Encoders\RLEEncoder.h" />
+    <ClInclude Include="Classes\Stream\SFStream.h" />
+    <ClInclude Include="Classes\Stream\Reader\SFFileStreamReader.h" />
+    <ClInclude Include="Classes\Stream\Writer\SFFileStreamWriter.h" />
+    <ClInclude Include="Classes\Stream\Reader\SFStreamReader.h" />
+    <ClInclude Include="Classes\Stream\Writer\SFStreamWriter.h" />
+    <ClInclude Include="Classes\Other\SFData.h" />
+    <ClInclude Include="Classes\Stream\Reader\SFMemoryStreamReader.h" />
+    <ClInclude Include="Classes\Stream\Writer\SFMemoryStreamWriter.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Classes\Encoders\GenericEncoder.cpp" />
+    <ClCompile Include="Classes\Encoders\HuffmanEncoder.cpp" />
+    <ClCompile Include="Classes\Image\Image.cpp" />
+    <ClCompile Include="Classes\ColorSpaces\ColorSpace.cpp" />
+    <ClCompile Include="Classes\ColorSpaces\ColorSpaceRGB.cpp" />
+    <ClCompile Include="Classes\ColorSpaces\ColorSpaceYCbCr.cpp" />
+    <ClCompile Include="JPEGEncoder.cpp" />
+    <ClCompile Include="Other\Lab13.cpp" />
+    <ClCompile Include="Classes\Encoders\LZWEncoder.cpp" />
+    <ClCompile Include="Classes\Object\Object.cpp" />
+    <ClCompile Include="Other\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Classes\Encoders\RLEEncoder.cpp" />
+    <ClCompile Include="Classes\Stream\SFStream.cpp" />
+    <ClCompile Include="Classes\Stream\Reader\SFFileStreamReader.cpp" />
+    <ClCompile Include="Classes\Stream\Writer\SFFileStreamWriter.cpp" />
+    <ClCompile Include="Classes\Stream\Reader\SFStreamReader.cpp" />
+    <ClCompile Include="Classes\Stream\Writer\SFStreamWriter.cpp" />
+    <ClCompile Include="Classes\Other\SFData.cpp" />
+    <ClCompile Include="Classes\Stream\Reader\SFMemoryStreamReader.cpp" />
+    <ClCompile Include="Classes\Stream\Writer\SFMemoryStreamWriter.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

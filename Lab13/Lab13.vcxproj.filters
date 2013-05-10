@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Classes">
+      <UniqueIdentifier>{3a9bac25-f341-49c7-93b3-ee0154f6f013}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Classes\FileHandlers">
+      <UniqueIdentifier>{3a702eb5-c275-44e8-8bb9-dde76bb3b4e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Classes\Encoders">
+      <UniqueIdentifier>{fa8da475-a91c-4ade-9b5c-90c374de4b6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Classes\Object">
+      <UniqueIdentifier>{e7286b3d-f07c-47c8-956d-28245f7a77ca}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resources\testDecoded.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Resources\testEncoded.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Resources\testInput.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Resources\YuraTest.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Resources\backups.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Resources\ReadMe.txt" />
+    <Text Include="Resources\RLETest.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Classes\Encoders\GenericEncoder.h">
+      <Filter>Classes\Encoders</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Encoders\LZWEncoder.h">
+      <Filter>Classes\Encoders</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Object\Object.h">
+      <Filter>Classes\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Other\targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Other\stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Object\Atomic.h">
+      <Filter>Classes\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Encoders\HuffmanEncoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Encoders\RLEEncoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Stream\SFStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Stream\Reader\SFFileStreamReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Stream\Reader\SFStreamReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Stream\Writer\SFStreamWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Stream\Writer\SFFileStreamWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Other\SFData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Stream\Reader\SFMemoryStreamReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Stream\Writer\SFMemoryStreamWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Image\Image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\ColorSpaces\ColorSpace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\ColorSpaces\ColorSpaceRGB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\ColorSpaces\ColorSpaceYCbCr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JPEGEncoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Classes\Encoders\GenericEncoder.cpp">
+      <Filter>Classes\Encoders</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Encoders\LZWEncoder.cpp">
+      <Filter>Classes\Encoders</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Object\Object.cpp">
+      <Filter>Classes\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Other\Lab13.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Other\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Encoders\HuffmanEncoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Encoders\RLEEncoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Stream\SFStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Stream\Reader\SFFileStreamReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Stream\Reader\SFStreamReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Stream\Writer\SFStreamWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Stream\Writer\SFFileStreamWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Other\SFData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Stream\Reader\SFMemoryStreamReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Stream\Writer\SFMemoryStreamWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Image\Image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\ColorSpaces\ColorSpace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\ColorSpaces\ColorSpaceRGB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\ColorSpaces\ColorSpaceYCbCr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JPEGEncoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+</Project>

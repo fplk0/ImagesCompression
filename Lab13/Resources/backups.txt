@@ -1,0 +1,75 @@
+// Lab13.cpp : Defines the entry point for the console application.
+//
+
+#include "stdafx.h"
+
+#include "FileReader.h"
+#include "FileWriter.h"
+
+#include <vector>
+
+using namespace std;
+
+vector<int> controlSeq;
+vector<int> randBuf;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	FileWriter *wr = new FileWriter(L"testFle.txt");
+
+	int n = 500000;
+	for (int i = 0; i < n; i++)
+	{
+		int bit = rand() % 2;
+		controlSeq.push_back(bit);
+		if (bit)
+		{
+			int bitLen = rand() % 12 + 1;
+			int num = rand();
+			controlSeq.push_back(bitLen);
+			num &= (1 << bitLen) - 1;
+			randBuf.push_back(num);
+			wr->writeBits(num, bitLen);
+		}
+		else
+		{
+			int num = rand() & 0xFF;
+			randBuf.push_back(num);
+			wr->writeByte(num);
+		}
+	}
+
+	wr->flushFile();
+	wr->closeFile();
+
+	int curPos = 0;
+	FileReader *rd = new FileReader(L"testFle.txt");
+	for (int i = 0; i < n; i++)
+	{
+		int bit = controlSeq[curPos++];
+		if (bit)
+		{
+			int bl = controlSeq[curPos++];
+			int num1 = randBuf[i];
+			int num2;
+			rd->readBits(num2, bl);
+			if (num2 != num1)
+			{
+				printf("bida\n");
+			}
+		}
+		else
+		{
+			int num1 = randBuf[i];
+			byte num2;
+			rd->readByte(num2);
+			if (num2 != num1)
+			{
+				printf("bida\n");
+			}
+		}
+	}
+
+	return 0;
+}
+
