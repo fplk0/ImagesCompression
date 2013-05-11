@@ -18,6 +18,7 @@ class SFMemoryStreamReader :
 
 	virtual size_t _scanNext(byte *buf, size_t maxSize);
 	virtual bool _atEnd();
+	virtual bool _rewind(long long bytesCnt);
 
 public:
 	virtual SFMemoryStreamReader* initWithData(SFData *_data);

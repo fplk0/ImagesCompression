@@ -17,6 +17,12 @@ void SFFileStreamReader::setFileName(wstring _fileName)
 	fileName = _fileName;
 }
 
+bool SFFileStreamReader::_rewind(long long bytesCnt)
+{
+	fseek(file, -(long)bytesCnt, SEEK_CUR);
+	return true;
+}
+
 size_t SFFileStreamReader::_scanNext(byte *buf, size_t maxSize)
 {
 	size_t retVal = fread(buf, sizeof(byte), bufSize, file);
@@ -25,7 +31,7 @@ size_t SFFileStreamReader::_scanNext(byte *buf, size_t maxSize)
 
 bool SFFileStreamReader::_atEnd()
 {
-	return feof(file);
+	return feof(file) != 0;
 }
 
 bool SFFileStreamReader::rewind()

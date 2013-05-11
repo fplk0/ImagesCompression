@@ -40,15 +40,27 @@ int SFStreamWriter::flushStream(bool flushBits)
 }
 
 
-int SFStreamWriter::writeBytes(byte *bytes, size_t size)
+int SFStreamWriter::writeBytes(byte *bytes, size_t size, bool reverse)
 {
 	this->_flushStreamIfNeeded(1, 0);
 
-	for (size_t pos = 0; pos < size; pos++)
+	if (!reverse)
 	{
-		if (bufPos == bufSize)
-			this->_flushStreamIfNeeded();
-		buf[bufPos++] = bytes[pos];
+		for (size_t pos = 0; pos < size; pos++)
+		{
+			if (bufPos == bufSize)
+				this->_flushStreamIfNeeded();
+			buf[bufPos++] = bytes[pos];
+		}
+	}
+	else
+	{
+		for (size_t pos = size - 1; pos >= 0; pos--)
+		{
+			if (bufPos == bufSize)
+				this->_flushStreamIfNeeded();
+			buf[bufPos++] = bytes[pos];
+		}
 	}
 	return 0;
 }
@@ -62,19 +74,19 @@ int SFStreamWriter::writeByte(byte bt)
 
 int SFStreamWriter::writeShort(unsigned short sh)
 {
-	this->writeBytes((byte*)&sh, 2);
+	this->writeBytes((byte*)&sh, 2, true);
 	return 0;
 }
 
 int SFStreamWriter::writeInt(unsigned int val)
 {
-	this->writeBytes((byte*)&val, 4);
+	this->writeBytes((byte*)&val, 4, true);
 	return 0;
 }
 
 int SFStreamWriter::writeLL(unsigned long long val)
 {
-	this->writeBytes((byte*)&val, 8);
+	this->writeBytes((byte*)&val, 8, true);
 	return 0;
 }
 

@@ -21,7 +21,7 @@ public:
 	virtual SFStreamWriter* init();
 	int flushStream(bool flushBits = 1);
 
-	int writeBytes(byte *bytes, size_t size);
+	int writeBytes(byte *bytes, size_t size, bool reverse = 0);
 	int writeByte(byte bt);
 	int writeShort(unsigned short sh);
 	int writeInt(unsigned int val);

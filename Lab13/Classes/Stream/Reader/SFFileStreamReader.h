@@ -19,6 +19,7 @@ class SFFileStreamReader :
 
 	virtual size_t _scanNext(byte *buf, size_t maxSize);
 	virtual bool _atEnd();
+	virtual bool _rewind(long long byteCnt);
 
 public:
 	

@@ -15,6 +15,12 @@ SFMemoryStreamReader* SFMemoryStreamReader::initWithData(SFData *_data)
 	return this;
 }
 
+bool SFMemoryStreamReader::_rewind(long long bytesCnt)
+{
+	posInData -= bytesCnt;
+	return true;
+}
+
 size_t SFMemoryStreamReader::_scanNext(byte *buf, size_t maxSize)
 {
 	size_t bytesToRead = min(maxSize, data->getLength() - posInData);
