@@ -27,7 +27,7 @@ CurrentName() : SuperName() {  };\
 public:\
 static CurrentName* alloc() { return static_cast<CurrentName*>(CurrentName::metaObject.alloc()); }; \
 virtual const METACLASS_NAME(CurrentName)* metaClass() const { return static_cast<METACLASS_NAME(CurrentName)*>(&metaObject); };\
-static const METACLASS_NAME(CurrentName)* staticMetaClass() { return static_cast<METACLASS_NAME(CurrentName)*>(&metaObject); };\
+static const METACLASS_NAME(CurrentName)* metaClassStatic() { return static_cast<METACLASS_NAME(CurrentName)*>(&metaObject); };\
 private:
 
 #define SF_WSTRING_VALUE(arg) L#arg

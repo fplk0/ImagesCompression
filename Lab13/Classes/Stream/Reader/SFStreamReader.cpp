@@ -7,7 +7,10 @@ void SFStreamReader::_shiftLeft(size_t cnt)
 {
 	memcpy(buf, buf + bytesRead - cnt, cnt);
 	bufPos = cnt - (bytesRead - bufPos);
-	bytesRead += _scanNext(buf + bytesRead, bufSize - bytesRead);
+	bytesRead = cnt;
+	size_t moreRead = _scanNext(buf + bytesRead, bufSize - bytesRead);
+	bytesRead += moreRead;
+	totalBytesRead += moreRead;
 }
 
 bool SFStreamReader::rewind()

@@ -8,8 +8,6 @@ ColorSpaceRGB* ColorSpaceRGB::singleton()
 {
 	static ColorSpaceRGB *singleInstance;
 	SFPerformOnceBegin
-		Sleep(10000);
-		printf("2");
 		singleInstance = ColorSpaceRGB::alloc()->init();
 	SFPerformOnceEnd
 	return singleInstance;
@@ -39,18 +37,28 @@ wstring ColorSpaceRGB::nameOfComponentAtIndex(int componentIndex)
 	return L"";
 }
 
-void ColorSpaceRGB::convertImageFromRGB(float *src, float *dst, int pixelCount)
+void ColorSpaceRGB::convertImageFromRGB(int *src, int *dst, int pixelCount)
 {
 	if (src == dst)
 		return;
-	memcpy(dst, src, pixelCount * componentsCount * sizeof(float));
+	memcpy(dst, src, pixelCount * componentsCount * sizeof(int));
 }
 
-void ColorSpaceRGB::convertImageToRGB(float *src, float *dst, int pixelCount)
+void ColorSpaceRGB::convertImageToRGB(int *src, int *dst, int pixelCount)
 {
 	if (src == dst)
 		return;
-	memcpy(dst, src, pixelCount * componentsCount * sizeof(float));
+	memcpy(dst, src, pixelCount * componentsCount * sizeof(int));
+}
+
+void ColorSpaceRGB::convertImageToRGB(int **components, int *dst, int pixelCount)
+{
+	for (int i = 0; i < pixelCount; i++)
+	{
+		dst[3*i] = components[0][i];
+		dst[3*i+1] = components[1][i];
+		dst[3*i+2] = components[2][i];
+	}
 }
 
 ColorSpaceRGB::~ColorSpaceRGB(void)

@@ -20,7 +20,8 @@ Image* Image::initWithSizeAndColorSpace(int _width, int _height, ColorSpace *cs)
 	colorSpace->retain();
 	componentsCount = cs->getComponentsCount();
 
-	pixels = new float[alignedWidth * height * componentsCount];
+	if (width * height != 0)
+		pixels = new int[alignedWidth * height * componentsCount];
 
 	return this;
 }
@@ -31,17 +32,17 @@ Image* Image::imageByConvertingToColorSpace(ColorSpace *newCs)
 		return this->copy();
 	Image *rv = Image::alloc()->initWithSizeAndColorSpace(this->width, this->height, newCs);
 	
-	if (colorSpace->metaClass() == ColorSpaceRGB::staticMetaClass())
+	if (colorSpace->metaClass() == ColorSpaceRGB::metaClassStatic())
 	{
 		newCs->convertImageFromRGB(this->pixels, rv->pixels, alignedWidth * height);
 	}
-	else if (newCs->metaClass() == ColorSpaceRGB::staticMetaClass())
+	else if (newCs->metaClass() == ColorSpaceRGB::metaClassStatic())
 	{
 		colorSpace->convertImageToRGB(this->pixels, rv->pixels, alignedWidth * height);
 	}
 	else
 	{
-		float *rgbBuf = new float[alignedWidth * height * ColorSpaceRGB::singleton()->getComponentsCount()];
+		int *rgbBuf = new int[alignedWidth * height * ColorSpaceRGB::singleton()->getComponentsCount()];
 		colorSpace->convertImageToRGB(this->pixels, rgbBuf, alignedWidth * height);
 		newCs->convertImageFromRGB(rgbBuf, rv->pixels, alignedWidth * height);
 		delete [] rgbBuf;
@@ -55,25 +56,25 @@ void Image::convertToColorSpace(ColorSpace *newCs)
 	if (newCs->metaClass() == colorSpace->metaClass())
 		return;
 
-	float *rgbBuf = this->pixels, *dstBuf = this->pixels;
+	int *rgbBuf = this->pixels, *dstBuf = this->pixels;
 
 	int pixelsCount = alignedWidth * height;
 
 	if (ColorSpaceRGB::singleton()->getComponentsCount() != colorSpace->getComponentsCount())
 	{
-		rgbBuf = new float[ColorSpaceRGB::singleton()->getComponentsCount() * pixelsCount];
+		rgbBuf = new int[ColorSpaceRGB::singleton()->getComponentsCount() * pixelsCount];
 	}
 
 	if (newCs->getComponentsCount() != colorSpace->getComponentsCount())
 	{
-		dstBuf = new float[newCs->getComponentsCount() * pixelsCount];
+		dstBuf = new int[newCs->getComponentsCount() * pixelsCount];
 	}
 
-	if (colorSpace->metaClass() == ColorSpaceRGB::staticMetaClass())
+	if (colorSpace->metaClass() == ColorSpaceRGB::metaClassStatic())
 	{
 		newCs->convertImageFromRGB(this->pixels, dstBuf, pixelsCount);
 	}
-	else if (newCs->metaClass() == ColorSpaceRGB::staticMetaClass())
+	else if (newCs->metaClass() == ColorSpaceRGB::metaClassStatic())
 	{
 		colorSpace->convertImageToRGB(this->pixels, dstBuf, pixelsCount);
 	}
@@ -107,7 +108,7 @@ Image* Image::copy()
 
 	rv->componentsCount = componentsCount;
 
-	rv->pixels = new float[alignedWidth * height * componentsCount];
+	rv->pixels = new int[alignedWidth * height * componentsCount];
 
 	memcpy(rv->pixels, pixels, alignedWidth * height * componentsCount * sizeof(float));
 

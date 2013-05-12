@@ -4,6 +4,7 @@
 
 using namespace std;
 
+#undef super
 #define super Object
 
 #ifndef byte

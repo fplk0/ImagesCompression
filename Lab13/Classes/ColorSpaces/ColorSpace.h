@@ -45,17 +45,18 @@ protected:
 
 public:
     virtual wstring nameOfComponentAtIndex(int componentIndex) = 0;
-    virtual inline void convertColorFromRGB(float *src, float *dst) = 0;
-    virtual inline void convertColorToRGB(float *src, float *dst) = 0;
+    virtual inline void convertColorFromRGB(int *src, int *dst) = 0;
+    virtual inline void convertColorToRGB(int *src, int *dst) = 0;
 
-	virtual void convertImageFromRGB(float *src, float *dst, int pixelCount) = 0;
-	virtual void convertImageToRGB(float *src, float *dst, int pixelCount) = 0;
+	virtual void convertImageFromRGB(int *src, int *dst, int pixelCount) = 0;
+	virtual void convertImageToRGB(int *src, int *dst, int pixelCount) = 0;
+	virtual void convertImageToRGB(int **components, int *dst, int pixelCount) = 0;
 
-    virtual float lowerBoundForComponent(int componentIndex) = 0;
-    virtual float upperBoundForComponent(int componentIndex) = 0;
-    virtual float neutralValueForComponent(int componentIndex)
+    virtual int lowerBoundForComponent(int componentIndex) = 0;
+    virtual int upperBoundForComponent(int componentIndex) = 0;
+    virtual int neutralValueForComponent(int componentIndex)
     {
-        return 0.0f;
+        return 0;
     }
 
 public:

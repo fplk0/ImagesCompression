@@ -101,6 +101,8 @@
     <ClInclude Include="Classes\ColorSpaces\ColorSpace.h" />
     <ClInclude Include="Classes\ColorSpaces\ColorSpaceRGB.h" />
     <ClInclude Include="Classes\ColorSpaces\ColorSpaceYCbCr.h" />
+    <ClInclude Include="Classes\Other\dct.h" />
+    <ClInclude Include="Other\PlatformSpecific.h" />
     <ClInclude Include="Other\stdafx.h" />
     <ClInclude Include="Other\targetver.h" />
     <ClInclude Include="Classes\Stream\SFStream.h" />
@@ -124,6 +126,7 @@
     <ClCompile Include="Classes\ColorSpaces\ColorSpace.cpp" />
     <ClCompile Include="Classes\ColorSpaces\ColorSpaceRGB.cpp" />
     <ClCompile Include="Classes\ColorSpaces\ColorSpaceYCbCr.cpp" />
+    <ClCompile Include="Classes\Other\dct.cpp" />
     <ClCompile Include="Other\Lab13.cpp" />
     <ClCompile Include="Classes\Object\Object.cpp" />
     <ClCompile Include="Other\stdafx.cpp">

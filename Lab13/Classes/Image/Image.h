@@ -13,7 +13,7 @@ class Image :
 {
 	DEFAULT_METACLASS_DECLARATION(self, super);
 
-	float *pixels;
+	int *pixels;
 	
 	wstring comment;
 
@@ -29,12 +29,12 @@ public:
 	wstring getComment() { return comment; };
 	void setComment(const wstring &value) { comment = value; };
 
-	inline float getPixel(int x, int y, int component)
+	inline int getPixel(int x, int y, int component)
 	{
 		return pixels[component + (y * alignedWidth + x) * componentsCount];
 	}
 
-	inline void setPixel(int x, int y, int component, float value)
+	inline int setPixel(int x, int y, int component, int value)
 	{
 		pixels[component + (y * alignedWidth + x) * componentsCount] = value;
 	}

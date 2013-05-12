@@ -10,6 +10,8 @@
 #include "SFMemoryStreamReader.h"
 #include "SFMemoryStreamWriter.h"
 
+#include "SFFileStreamReader.h"
+
 #include "ColorSpaceRGB.h"
 #include "ColorSpaceYCbCr.h"
 
@@ -139,15 +141,26 @@ DWORD __stdcall threadTest(void *param)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	unsigned short tt = 15;
+	byte *first = (byte*)&tt, *second = first + 1;
+	vector<int> qwer;
 	JPEGCodec *test = JPEGCodec::alloc()->init();
+
+	SFFileStreamReader *reader = SFFileStreamReader::alloc()->initWithFileName(L"Resources/testjpeg.jpg");
+	test->setSourceStream(reader);
+	test->runDecode();
+	return 0;
+	int testInt = reader->readIntInline();
+	reader->readBitsInline(testInt, 8);
+	printf("%d\n", testInt);
 	//printf("%s\n%s\n", str2(a), str(a));
 
-	const wstring *tt = test->metaClass()->className();
-	int t = test->metaClass()->className()->length();
-	wprintf(L"%s %d\n", tt->c_str(), t);
-	printf("%s %d\n", tt->c_str(), t);
-	test->retain();
-	test->release();
+	//const wstring *tt = test->metaClass()->className();
+	//int t = test->metaClass()->className()->length();
+	//wprintf(L"%s %d\n", tt->c_str(), t);
+	//printf("%s %d\n", tt->c_str(), t);
+	//test->retain();
+	//test->release();
 	//testMemory();
 
 	//static int a = 0;

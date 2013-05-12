@@ -25,7 +25,7 @@ bool SFFileStreamReader::_rewind(long long bytesCnt)
 
 size_t SFFileStreamReader::_scanNext(byte *buf, size_t maxSize)
 {
-	size_t retVal = fread(buf, sizeof(byte), bufSize, file);
+	size_t retVal = fread(buf, sizeof(byte), maxSize, file);
 	return retVal;
 }
 

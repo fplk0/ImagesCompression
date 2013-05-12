@@ -39,6 +39,7 @@ public:
 
 	inline byte nextByte();
 
+	inline void padLastByteBits() { if (bitPos != 0) { bitPos = 0; bufPos++; } };
 	inline size_t readBytes(byte *bytes, size_t size);
 	inline size_t readBytesRev(byte *bytes, size_t size);
 	inline size_t readByte(byte &bt);
@@ -118,7 +119,7 @@ byte SFStreamReader::nextByte()
 		}
 	}
 
-	return buf[curPos + 1];
+	return buf[curPos];
 }
 
 size_t SFStreamReader::readBytes(byte *bytes, size_t size)
@@ -136,11 +137,13 @@ size_t SFStreamReader::readBytes(byte *bytes, size_t size)
 size_t SFStreamReader::readBytesRev(byte *bytes, size_t size)
 {
 	size_t pos = size - 1;
-	for (; pos >= 0; pos--)
+	for (; ; pos--)
 	{
 		if (_shouldReadNext() && this->readNext(1) < 0)
 			break;
 		bytes[pos] = buf[bufPos++];
+		if (pos == 0)
+			break;
 	}
 	return size - pos - 1;
 }
@@ -268,7 +271,7 @@ byte SFStreamReader::nextByteInline()
 		}
 	}
 
-	return buf[curPos + 1];
+	return buf[curPos];
 }
 
 size_t SFStreamReader::readBytesInline(byte *bytes, size_t size)
@@ -286,11 +289,13 @@ size_t SFStreamReader::readBytesInline(byte *bytes, size_t size)
 size_t SFStreamReader::readBytesRevInline(byte *bytes, size_t size)
 {
 	size_t pos = size - 1;
-	for (; pos >= 0; pos--)
+	for (; ; pos--)
 	{
 		if (_shouldReadNext() && this->readNext(1) < 0)
 			break;
 		bytes[pos] = buf[bufPos++];
+		if (pos == 0)
+			break;
 	}
 	return size - pos - 1;
 }

@@ -109,6 +109,12 @@
     <ClInclude Include="Classes\Codecs\RLECodec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Other\PlatformSpecific.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Other\dct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Classes\Object\Object.cpp">
@@ -175,6 +181,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Classes\Codecs\RLECodec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Other\dct.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

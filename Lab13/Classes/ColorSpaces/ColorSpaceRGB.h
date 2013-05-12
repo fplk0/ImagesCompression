@@ -19,32 +19,33 @@ public:
 
     virtual wstring nameOfComponentAtIndex(int componentIndex);
 
-    virtual inline void convertColorFromRGB(float *src, float *dst)
+    virtual inline void convertColorFromRGB(int *src, int *dst)
 	{
-		memcpy(dst, src, componentsCount * sizeof(float));
+		memcpy(dst, src, componentsCount * sizeof(int));
 	}
 
-    virtual inline void convertColorToRGB(float *src, float *dst)
+    virtual inline void convertColorToRGB(int *src, int *dst)
 	{
-		memcpy(dst, src, componentsCount * sizeof(float));
+		memcpy(dst, src, componentsCount * sizeof(int));
 	}
 
-	virtual void convertImageFromRGB(float *src, float *dst, int pixelCount);
-	virtual void convertImageToRGB(float *src, float *dst, int pixelCount);
+	virtual void convertImageFromRGB(int *src, int *dst, int pixelCount);
+	virtual void convertImageToRGB(int *src, int *dst, int pixelCount);
+	virtual void convertImageToRGB(int **components, int *dst, int pixelCount);
 
-    virtual float lowerBoundForComponent(int componentIndex)
+    virtual int lowerBoundForComponent(int componentIndex)
 	{
-		return 0.0;
+		return 0;
 	}
 
-    virtual float upperBoundForComponent(int componentIndex)
+    virtual int upperBoundForComponent(int componentIndex)
 	{
-		return 1.0;
+		return 255;
 	}
 
-    virtual float neutralValueForComponent(int componentIndex)
+    virtual int neutralValueForComponent(int componentIndex)
 	{
-		return 0.0;
+		return 255;
 	}
 
 	virtual ~ColorSpaceRGB(void);
