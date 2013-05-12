@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lab13", "Lab13\Lab13.vcxproj", "{2762EF6B-104F-40A8-9931-5E421C37C17F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lab13StaticLib", "Lab13StaticLib\Lab13StaticLib.vcxproj", "{71DC2442-4317-4E8A-83E1-EA9071EA1F0B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +15,10 @@ Global
 		{2762EF6B-104F-40A8-9931-5E421C37C17F}.Debug|Win32.Build.0 = Debug|Win32
 		{2762EF6B-104F-40A8-9931-5E421C37C17F}.Release|Win32.ActiveCfg = Release|Win32
 		{2762EF6B-104F-40A8-9931-5E421C37C17F}.Release|Win32.Build.0 = Release|Win32
+		{71DC2442-4317-4E8A-83E1-EA9071EA1F0B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{71DC2442-4317-4E8A-83E1-EA9071EA1F0B}.Debug|Win32.Build.0 = Debug|Win32
+		{71DC2442-4317-4E8A-83E1-EA9071EA1F0B}.Release|Win32.ActiveCfg = Release|Win32
+		{71DC2442-4317-4E8A-83E1-EA9071EA1F0B}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

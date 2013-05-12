@@ -1,0 +1,1 @@
+#define SF_FORCE_INLINE __forceinline

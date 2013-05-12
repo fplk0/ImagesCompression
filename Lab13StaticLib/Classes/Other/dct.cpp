@@ -15,12 +15,12 @@ void initDCT()
 		{
 			for (int k = 0; k < 8; k++)
 			{
-				dctMatrix[j][k] = 0.5 * cos(PI / 8 * (k + 0.5) * j);
-				idctMatrix[j][k] = 0.5 * cos(PI / 8 * (j + 0.5) * k);
+				dctMatrix[j][k] = 0.5f * cos(PI / 8 * (k + 0.5f) * j);
+				idctMatrix[j][k] = 0.5f * cos(PI / 8 * (j + 0.5f) * k);
 				if (j == 0)
-					dctMatrix[j][k] *= 1 / sqrt(2.0);
+					dctMatrix[j][k] *= 1 / sqrt(2.0f);
 				if (k == 0)
-					idctMatrix[j][k] *= 1 / sqrt(2.0);
+					idctMatrix[j][k] *= 1 / sqrt(2.0f);
 			}
 		}
 	}

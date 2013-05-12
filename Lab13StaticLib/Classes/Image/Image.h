@@ -34,7 +34,7 @@ public:
 		return pixels[component + (y * alignedWidth + x) * componentsCount];
 	}
 
-	inline int setPixel(int x, int y, int component, int value)
+	inline void setPixel(int x, int y, int component, int value)
 	{
 		pixels[component + (y * alignedWidth + x) * componentsCount] = value;
 	}
