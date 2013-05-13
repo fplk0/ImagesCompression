@@ -5,7 +5,9 @@
 
 #include "ColorSpaceRGB.h"
 #include "ColorSpaceYCbCr.h"
+
 #include "SFFileStreamReader.h"
+
 #include "JPEGCodec.h"
 
 void JPEGCodec::runDecode()
@@ -523,6 +525,8 @@ void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 		int smallBlockStart = currentBlockStart;
 		int mcuStart = currentBlockStart;
 
+		//Dequantization & IDCT start
+
 		for (int compIdx = 0; compIdx < componentsCount; compIdx++)
 		{
 			ComponentInfo &curCompInfo = componentsInfo[compIdx];
@@ -568,6 +572,8 @@ void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 			}
 		}
 
+		//Dequantization & IDCT finish
+
 		int fullMcuIdx = blockAddr->startMCUIndex + mcuIdx;
 		int mcuRow = fullMcuIdx / mcusPerRow;
 		int mcuCol = fullMcuIdx % mcusPerRow;
@@ -578,6 +584,8 @@ void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 		int *currentSubBlocksStart[16];
 
 		ColorSpaceYCbCr *cs = ColorSpaceYCbCr::singleton();
+
+		//De-subsampling start
 
 		for (int ci = 0; ci < componentsCount; ci++)
 		{
@@ -609,11 +617,15 @@ void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 								}
 							}
 
+
+
 							blockPtr++;
 						}
 					}
 				}
 		}
+
+		//De-subsampling finish
 
 		cs->convertImageToRGB(mcuBuf, mcuConvertedBuf, mcuHeightInPixels * mcuWidthInPixels);
 

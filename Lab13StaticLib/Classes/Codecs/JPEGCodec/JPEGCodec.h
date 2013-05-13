@@ -90,8 +90,14 @@ class JPEGCodec :
 		~HuffmanDecodeInfo() { delete [] values; };
 	};
 
+	int *encodedBlocks;
+
 	SF_FORCE_INLINE void _readNum(int &to, int len);
 	SF_FORCE_INLINE byte readBit(int &to); //If it finds a marker, it returns it's value, 0 otherwise
+
+	SF_FORCE_INLINE void _writeNum(int &from, int len);
+	SF_FORCE_INLINE void writeBit(int &from);
+
 	HuffmanDecodeInfo dcHuffmanDecodeTables[16], acHuffmanDecodeTables[16];
 
 	wstring comment;
@@ -137,7 +143,9 @@ private:
 
 //Decoding
 public:
+	void setHorizontalSubsamplingForComponent(int horizontalSubsampling, int component);
 	virtual void runDecode();
+	void _encodeSingleBlock(int startBlockIndex, int blocksCount);
 private:
 
 
