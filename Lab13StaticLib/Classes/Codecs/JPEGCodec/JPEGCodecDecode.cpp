@@ -80,8 +80,8 @@ void JPEGCodec::_decodeSOF0()
 	reader->readByte(_precision);
 	precison = _precision;
 
-	reader->readShort(_width);
 	reader->readShort(_height);
+	reader->readShort(_width);
 	width = _width;
 	height = _height;
 
@@ -94,11 +94,14 @@ void JPEGCodec::_decodeSOF0()
 	mcuWidth = 0;
 	mcuHeight = 0;
 
+	int subs = 1;
 	for (int i = 0; i < componentsCount; i++)
 	{
 		byte cb;
 		reader->readByte(cb);
-		int id = cb-1;
+		if (cb == 0)
+			subs = 0;
+		int id = cb-subs;
 		componentsInfo[i].id = cb;
 		reader->readByte(cb);
 		componentsInfo[id].horizontalSubsampling = cb >> 4;
@@ -140,86 +143,99 @@ void JPEGCodec::_decodeDQT()
 {
 	unsigned short tableLength;
 	reader->readShort(tableLength);
-	tableLength -= 4;
+	tableLength -= 2;
 
-	byte sc; 
-	reader->readByte(sc);
-	int valueLen = sc >> 4;
-	int tableID = sc & 0xF;
+	while (tableLength > 0)
+	{
+		byte sc; 
+		reader->readByte(sc);
+		tableLength--;
+		int valueLen = sc >> 4;
+		int tableID = sc & 0xF;
 
-	int *buf = NULL;
-	if (quantizationTables[tableID] != NULL)
-	{
-		buf = quantizationTables[tableID];
-	}
-	else
-	{
-		buf = new int[64];
-		quantizationTables[tableID] = buf;
-	}
-
-	for (int i = 0; i < 64; i++)
-	{
-		if (valueLen == 0)
+		int *buf = NULL;
+		if (quantizationTables[tableID] != NULL)
 		{
-			byte next;
-			reader->readByte(next);
-			buf[_zig[i]] = next;
+			buf = quantizationTables[tableID];
 		}
 		else
 		{
-			unsigned short next;
-			reader->readShort(next);
-			buf[_zig[i]] = next;
+			buf = new int[64];
+			quantizationTables[tableID] = buf;
 		}
+
+		for (int i = 0; i < 64; i++)
+		{
+			if (valueLen == 0)
+			{
+				byte next;
+				reader->readByte(next);
+				buf[_zig[i]] = next;
+			}
+			else
+			{
+				unsigned short next;
+				reader->readShort(next);
+				buf[_zig[i]] = next;
+			}
+		}
+		tableLength -= 64 * (valueLen ? 2 : 1);
 	}
 }
 
 void JPEGCodec::_decodeDHT()
 {
 	int sectionLength = reader->readShort();
-	byte classID = reader->readByte();
-	int tableClass = (classID >> 4) & 0xF;
-	int tableID = classID & 0xF;
+	sectionLength -= 2;
 
-	HuffmanDecodeInfo *decodeInfo;
-	if (tableClass == 0)
-		decodeInfo = &dcHuffmanDecodeTables[tableID];
-	else
-		decodeInfo = &acHuffmanDecodeTables[tableID];
-
-	int codesCount[16];
-	int totalCodesCount = 0;
-
-	for (int i = 0; i < 16; i++)
+	while (sectionLength > 0)
 	{
-		codesCount[i] = reader->readByte();
-		decodeInfo->valPtr[i] = totalCodesCount;
-		totalCodesCount += codesCount[i];
-	}
+		byte classID = reader->readByte();
+		sectionLength--;
+		int tableClass = (classID >> 4) & 0xF;
+		int tableID = classID & 0xF;
 
-	decodeInfo->values = new int[totalCodesCount];
-
-	for (int i = 0; i < totalCodesCount; i++)
-	{
-		decodeInfo->values[i] = reader->readByte();
-	}
-
-	int lastPrevCode = 0;
-
-	for (int i = 0; i < 16; i++)
-	{
-		if (codesCount[i] != 0)
-		{
-			decodeInfo->minCode[i] = lastPrevCode;
-			decodeInfo->maxCode[i] = lastPrevCode + codesCount[i] - 1;
-			lastPrevCode = decodeInfo->maxCode[i] + 1;
-		}
+		HuffmanDecodeInfo *decodeInfo;
+		if (tableClass == 0)
+			decodeInfo = &dcHuffmanDecodeTables[tableID];
 		else
+			decodeInfo = &acHuffmanDecodeTables[tableID];
+
+		int codesCount[16];
+		int totalCodesCount = 0;
+
+		for (int i = 0; i < 16; i++)
 		{
-			decodeInfo->maxCode[i] = -1;
+			codesCount[i] = reader->readByte();
+			decodeInfo->valPtr[i] = totalCodesCount;
+			totalCodesCount += codesCount[i];
 		}
-		lastPrevCode <<= 1;
+		sectionLength -= 16;
+
+		decodeInfo->values = new int[totalCodesCount];
+
+		for (int i = 0; i < totalCodesCount; i++)
+		{
+			decodeInfo->values[i] = reader->readByte();
+			sectionLength--;
+		}
+
+		int lastPrevCode = 0;
+
+		for (int i = 0; i < 16; i++)
+		{
+			if (codesCount[i] != 0)
+			{
+				decodeInfo->minCode[i] = lastPrevCode;
+				decodeInfo->maxCode[i] = lastPrevCode + codesCount[i] - 1;
+				lastPrevCode = decodeInfo->maxCode[i] + 1;
+			}
+			else
+			{
+				decodeInfo->maxCode[i] = -1;
+			}
+			lastPrevCode <<= 1;
+		}
 	}
 }
 
@@ -230,7 +246,8 @@ byte JPEGCodec::readBit(int &to)
 	{
 		if (curByteRead == 0xFF)
 		{
-			reader->skipBytesInline(1);
+			if (reader->nextByteInline() == 0)
+				reader->skipBytesInline(1);
 		}
 		curByteRead = reader->nextByteInline();
 		reader->readBitsInline(to, 1);
@@ -238,7 +255,9 @@ byte JPEGCodec::readBit(int &to)
 		{
 			byte nextByte = reader->nextByteInline();
 			if (nextByte != 0)
-				return nextByte;
+			{
+				//return nextByte;
+			}
 		}
 		pos = 7;
 	}
@@ -355,7 +374,7 @@ void JPEGCodec::_decodeMCU(int *dcPredictors)
 
 void JPEGCodec::_decodeSOS()
 {
-	image = Image::alloc()->initWithSizeAndColorSpace(width, height, ColorSpaceRGB::singleton());
+	image = SFImage::alloc()->initWithSizeAndColorSpace(width, height, ColorSpaceRGB::singleton());
 
 	int headerLength = reader->readShort();
 
@@ -385,7 +404,7 @@ void JPEGCodec::_decodeSOS()
 	if (restartInterval != 0)
 		singleDecodeBlockSize = restartInterval;
 	else
-		singleDecodeBlockSize = 4;
+		singleDecodeBlockSize = 1;
 
 	int curMCU = 0;
 	decodeBlockInfo = new CurrentDecodeBlockInfo(singleDecodeBlockSize * mcuSize, curMCU);
@@ -396,6 +415,8 @@ void JPEGCodec::_decodeSOS()
 
 	while (true)
 	{
+		if (curMCU == 67*100+97)
+			printf("zz");
 		this->_decodeMCU(dcPredictors);
 		curMCU++;
 		if (restartInterval)
@@ -442,6 +463,24 @@ void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 	int currentBlockStart = 0;
 	int mcuIdx = 0;
 	int subblocksStart[16];
+
+	const int maxMCUSize = 16;
+
+	int _mcuBuf[3 * maxMCUSize * 64];
+	int _mcuConvertedBuf[3 * maxMCUSize * 64];
+
+	int *mcuBuf = _mcuBuf;
+	int *mcuConvertedBuf = _mcuConvertedBuf;
+
+	int mcuBlocksSize = mcuHeight * mcuWidth;
+
+	if (mcuBlocksSize > maxMCUSize)
+	{
+		mcuBuf = new int[3 * mcuBlocksSize * 64];
+		mcuConvertedBuf = new int[3 * mcuBlocksSize * 64];
+	}
+
+	memset(mcuBuf, 0, 3 * mcuBlocksSize * 64 * sizeof(int));
 
 	if (componentsCount < 3)
 	{
@@ -503,57 +542,84 @@ void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 		int mcuRow = fullMcuIdx / mcusPerRow;
 		int mcuCol = fullMcuIdx % mcusPerRow;
 
+		int mcuWidthInPixels = mcuWidth * 8;
+		int mcuHeightInPixels = mcuHeight * 8;
+
 		int *currentSubBlocksStart[16];
 
 		ColorSpaceYCbCr *cs = ColorSpaceYCbCr::singleton();
 
-		for (int compIdx = 0; compIdx < cs->getComponentsCount(); compIdx++)
-			currentSubBlocksStart[compIdx] = zeroBlock;
-
 		int rowsPerBlock[16], colsPerBlock[16];
-
-		for (int i = 0; i < componentsCount; i++)
+		for (int ci = 0; ci < componentsCount; ci++)
 		{
-			rowsPerBlock[i] = mcuHeight / componentsInfo[i].verticalSubsampling;
-			colsPerBlock[i] = mcuWidth / componentsInfo[i].horizontalSubsampling;
+			rowsPerBlock[ci] = mcuHeight / componentsInfo[ci].verticalSubsampling;
+			colsPerBlock[ci] = mcuWidth / componentsInfo[ci].horizontalSubsampling;
+			
+
+			int idx = 0;
+
+			for (int i = 0; i < componentsInfo[ci].verticalSubsampling; i++)
+				for (int j = 0; j < componentsInfo[ci].horizontalSubsampling; j++)
+				{
+					int *curBlockStart = subblocksStart[ci] + blockAddr->block + 64 * idx;
+					int blockPtr = 0;
+					idx++;
+					for (int y = 0; y < 8; y++)
+					{
+						for (int x = 0; x < 8; x++)
+						{
+							int curVal = curBlockStart[blockPtr];
+							
+							int tY = (i * 8 + y) * rowsPerBlock[ci];
+							int tX = (j * 8 + x) * colsPerBlock[ci];
+
+							for (int _y = 0; _y < rowsPerBlock[ci]; _y++)
+							{
+								for (int _x = 0; _x < colsPerBlock[ci]; _x++)
+								{
+									int fY = tY + _y;
+									int fX = tX + _x;
+									int fullInd = (mcuWidthInPixels * fY + fX) * 3 + ci;
+									mcuBuf[fullInd] = curVal;
+								}
+							}
+
+							blockPtr++;
+						}
+					}
+				}
 		}
+
+		cs->convertImageToRGB(mcuBuf, mcuConvertedBuf, mcuHeightInPixels * mcuWidthInPixels);
 
 		int mcuXPixel = mcuCol * mcuWidth * 8;
 		int mcuYPixel = mcuRow * mcuHeight * 8;
+		int posInBuf = 0;
 
-		for (int i = 0; i < mcuHeight; i++)
+		for (int i = 0; i < mcuHeightInPixels; i++)
 		{
-			for (int j = 0; j < mcuWidth; j++)
+			for (int j = 0; j < mcuWidthInPixels; j++)
 			{
-				for (int ci = 0; ci < componentsCount; ci++)
+				for (int ci = 0; ci < 3; ci++)
 				{
-					int blockNum = (i / rowsPerBlock[ci]) * componentsInfo[ci].horizontalSubsampling + j / colsPerBlock[ci];
-					currentSubBlocksStart[ci] = subblocksStart[ci] + blockAddr->block + blockNum * 64;
-				}
-
-				int rgbBuf[64 * 3];
-
-				cs->convertImageToRGB(currentSubBlocksStart, rgbBuf, 64);
-
-				int posInBuf = 0;
-				int blockXPixel = mcuXPixel + j * 8;
-				int blockYPixel = mcuYPixel + i * 8;
-
-				for (int y = 0; y < 8; y++)
-				{
-					for (int x = 0; x < 8; x++)
-					{
-						for (int k = 0; k < 3; k++)
-						{
-							image->setPixel(x + blockXPixel, y + blockYPixel, k, rgbBuf[posInBuf++]);
-						}
-					}
+					int val = mcuConvertedBuf[posInBuf++];
+					if (i + mcuYPixel >= image->getHeight())
+						continue;
+					if (j + mcuXPixel >= image->getWidth())
+						continue;
+					image->setPixel(j + mcuXPixel, i + mcuYPixel, ci, val);
 				}
 			}
 		}
 
 		mcuIdx++;
 		currentBlockStart += mcuSize;
+	}
+
+	if (mcuBlocksSize > maxMCUSize)
+	{
+		delete [] mcuBuf;
+		delete [] mcuConvertedBuf;
 	}
 }
 

@@ -15,7 +15,7 @@
 #include "ColorSpaceRGB.h"
 #include "ColorSpaceYCbCr.h"
 
-#include "Image.h"
+#include "SFImage.h"
 #include "JPEGCodec.h"
 
 #include <Windows.h>
@@ -139,16 +139,28 @@ DWORD __stdcall threadTest(void *param)
 }
 
 
+void testColorSpace()
+{
+	int vals[3] = {120, 140, 160};
+	int vals2[3];
+	ColorSpaceYCbCr *sp = ColorSpaceYCbCr::singleton();
+	sp->convertColorFromRGB(vals, vals2);
+	sp->convertColorToRGB(vals2, vals);
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
-	unsigned short tt = 15;
-	byte *first = (byte*)&tt, *second = first + 1;
-	vector<int> qwer;
 	JPEGCodec *test = JPEGCodec::alloc()->init();
 
-	SFFileStreamReader *reader = SFFileStreamReader::alloc()->initWithFileName(L"Resources/testjpeg.jpg");
+	Sleep(4000);
+
+	clock_t cl = clock();
+	SFFileStreamReader *reader = SFFileStreamReader::alloc()->initWithFileName(L"Resources/maelstromBig.jpg");
 	test->setSourceStream(reader);
 	test->runDecode();
+
+	printf("%lf\n", (clock() - cl) / (double)CLOCKS_PER_SEC);
+
 	return 0;
 	int testInt = reader->readIntInline();
 	reader->readBitsInline(testInt, 8);
@@ -181,11 +193,11 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	}
 
-	Image *test1 = Image::alloc()->initWithSizeAndColorSpace(1, 1, ColorSpaceRGB::singleton());
+	SFImage *test1 = SFImage::alloc()->initWithSizeAndColorSpace(1, 1, ColorSpaceRGB::singleton());
 	test1->setPixel(0, 0, 0, 0.1);
 	test1->setPixel(0, 0, 1, 0.2);
 	test1->setPixel(0, 0, 2, 0.3);
-	Image *test2 = test1->copy();
+	SFImage *test2 = test1->copy();
 
 	test1->convertToColorSpace(ColorSpaceYCbCr::singleton());
 

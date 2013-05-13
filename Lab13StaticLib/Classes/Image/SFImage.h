@@ -1,14 +1,14 @@
 #pragma once
-#include "Object.h"
+#include "SFObject.h"
 #include "ColorSpace.h"
 
 #undef super
 #undef self
 
-#define super Object
-#define self Image
+#define super SFObject
+#define self SFImage
 
-class Image :
+class SFImage :
 	public super
 {
 	DEFAULT_METACLASS_DECLARATION(self, super);
@@ -43,12 +43,12 @@ public:
 	int getHeight() { return height; };
 	ColorSpace* getColorSpace() { return colorSpace; };
 
-	virtual Image* init();
-	virtual Image* initWithSizeAndColorSpace(int width, int height, ColorSpace *cs);
-	Image* imageByConvertingToColorSpace(ColorSpace *newCs);
+	virtual SFImage* init();
+	virtual SFImage* initWithSizeAndColorSpace(int width, int height, ColorSpace *cs);
+	SFImage* imageByConvertingToColorSpace(ColorSpace *newCs);
 	void convertToColorSpace(ColorSpace *newCs);
-	virtual Image* copy();
+	virtual SFImage* copy();
 	virtual void free();
 
-	virtual ~Image(void);
+	virtual ~SFImage(void);
 };

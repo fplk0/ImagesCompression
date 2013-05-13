@@ -109,7 +109,7 @@ void LZWCodec::runDecode()
 
 	while (!reader->atEnd(false))
 	{
-		int bitsRead = reader->readBits(curCode, bitLength);
+		size_t bitsRead = reader->readBits(curCode, bitLength);
 
 		if (bitsRead != bitLength)
 			break;

@@ -48,54 +48,52 @@ CurrentName::METACLASS_NAME(CurrentName) CurrentName::metaObject; \
 
 #include <basetsd.h>
 
-typedef unsigned int UInt32;
-
-class Object
+class SFObject
 {
 public:
-	class METACLASS_NAME(Object) 
+	class METACLASS_NAME(SFObject) 
 	{
 		static const std::wstring _className;
 	public:
 		const virtual std::wstring* className() const { return &_className; }; 
-		virtual Object* alloc() const { return new Object; } 
+		virtual SFObject* alloc() const { return new SFObject; } 
 	};
 
-	static METACLASS_NAME(Object) metaObject;
-	friend class METACLASS_NAME(Object);
+	static METACLASS_NAME(SFObject) metaObject;
+	friend class METACLASS_NAME(SFObject);
 
 protected:
-	Object() { _retainCount = 1; };
+	SFObject() { _retainCount = 1; };
 
 public:
 
-	virtual const METACLASS_NAME(Object)* metaClass() const
+	virtual const METACLASS_NAME(SFObject)* metaClass() const
 	{ 
-		return static_cast<METACLASS_NAME(Object)*>(&metaObject); 
+		return static_cast<METACLASS_NAME(SFObject)*>(&metaObject); 
 	}
 
-	static Object* alloc() 
+	static SFObject* alloc() 
 	{ 
-		return Object::metaObject.alloc();
+		return SFObject::metaObject.alloc();
 	};
 
 private:
 
-	UInt32 _retainCount;
+	unsigned int _retainCount;
 
 protected:
 
 	virtual void free();
-	virtual ~Object(void);
+	virtual ~SFObject(void);
 
 public:
 
-	virtual Object* init();
+	virtual SFObject* init();
 
-	Object* retain();
+	SFObject* retain();
 	void release();
 
-	virtual Object* copy();
+	virtual SFObject* copy();
 
 	virtual int getRetainCount() const { return _retainCount; };
 };

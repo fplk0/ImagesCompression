@@ -7,15 +7,22 @@ DEFINE_OBJECT_IMPL(self);
 
 inline void _YCbCrFromRGB(int &r, int &g, int &b, int &y, int &cb, int &cr)
 {
-	y = (int) (0.299f * r + 0.587f * g + 0.114f * b);
-	cb = (int) (128 - 0.168736f * r - 0.331264f * g + 0.5f * b);
-	cr = (int) (128 + 0.5f * r - 0.418688f * g - 0.081312f * b);
+	y = (int) (0.299f * r + 0.587f * g + 0.114f * b) - 128;
+	cb = (int) (-0.168736f * r - 0.331264f * g + 0.5f * b);
+	cr = (int) (0.5f * r - 0.418688f * g - 0.081312f * b);
+	//y = (int) (0.299f * r + 0.587f * g + 0.114f * b);
+	//cb = (int) (128 - 0.168736f * r - 0.331264f * g + 0.5f * b);
+	//cr = (int) (128 + 0.5f * r - 0.418688f * g - 0.081312f * b);
 }
 
-inline void _RGBFromYCbCr(int &y, int &cb, int &cr, int &r, int &g, int &b)
+inline void _RGBFromYCbCr(int &_y, int &_cb, int &_cr, int &r, int &g, int &b)
 {
-	cr -= 128;
-	cb -= 128;
+	int y = _y + 128;
+	int cr = _cr;
+	int cb = _cb;
+	//int y = _y;
+	//int cr = _cr - 128;
+	//int cb = _cb - 128;
 	r = (int) (y + 1.402f * cr);
 	g = (int) (y - 0.34414f * cb - 0.71414f * cr);
 	b = (int) (y + 1.772f * cb);
@@ -90,7 +97,7 @@ void ColorSpaceYCbCr::convertImageFromRGB(int *src, int *dst, int pixelCount)
 
 void ColorSpaceYCbCr::convertImageToRGB(int *src, int *dst, int pixelCount)
 {
-	int shiftSrc = componentsCount * sizeof(*src);
+	int shiftSrc = componentsCount;
 	int shiftDst = 3;
 
 	for (int i = 0; i < pixelCount; i++)

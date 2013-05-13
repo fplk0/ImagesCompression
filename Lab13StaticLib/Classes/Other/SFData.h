@@ -1,10 +1,10 @@
 #pragma once
-#include "object.h"
+#include "SFObject.h"
 
 #undef self
 #undef super
 
-#define super Object
+#define super SFObject
 #define self SFData
 
 #ifndef byte
@@ -12,7 +12,7 @@ typedef unsigned char byte;
 #endif
 
 class SFData :
-	public Object
+	public SFObject
 {
 	DEFAULT_METACLASS_DECLARATION(self, super)
 

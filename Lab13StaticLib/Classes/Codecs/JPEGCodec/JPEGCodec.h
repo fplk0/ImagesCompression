@@ -2,7 +2,7 @@
 
 #include "GenericCodec.h"
 #include <map>
-#include "Image.h"
+#include "SFImage.h"
 #include "PlatformSpecific.h"
 
 #undef super
@@ -18,7 +18,7 @@ class JPEGCodec :
 	static int _zig[64], _dezig[64];
 	static void _fillZig();
 
-	Image *image;
+	SFImage *image;
 
 	int width, height;
 
@@ -108,8 +108,8 @@ public:
 	
 	virtual JPEGCodec* init();
 
-	Image* getImage() { return image; };
-	void setImage(Image *img) {  }
+	SFImage* getImage() { return image; };
+	void setImage(SFImage *img) {  }
 
 //Encoding
 public:

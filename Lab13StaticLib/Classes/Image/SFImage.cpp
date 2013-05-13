@@ -1,17 +1,17 @@
 #include "stdafx.h"
 #include "ColorSpaceRGB.h"
 
-#include "Image.h"
+#include "SFImage.h"
 
-DEFINE_OBJECT_IMPL(Image);
+DEFINE_OBJECT_IMPL(SFImage);
 
-Image* Image::init()
+SFImage* SFImage::init()
 {
 	throw new exception("You should initialize this class by using initWithSizeAndColorSpace");
 	return NULL;
 }
 
-Image* Image::initWithSizeAndColorSpace(int _width, int _height, ColorSpace *cs)
+SFImage* SFImage::initWithSizeAndColorSpace(int _width, int _height, ColorSpace *cs)
 {
 	super::init();
 	width = alignedWidth = _width;
@@ -26,11 +26,11 @@ Image* Image::initWithSizeAndColorSpace(int _width, int _height, ColorSpace *cs)
 	return this;
 }
 
-Image* Image::imageByConvertingToColorSpace(ColorSpace *newCs)
+SFImage* SFImage::imageByConvertingToColorSpace(ColorSpace *newCs)
 {
 	if (newCs->metaClass() == colorSpace->metaClass())
 		return this->copy();
-	Image *rv = Image::alloc()->initWithSizeAndColorSpace(this->width, this->height, newCs);
+	SFImage *rv = SFImage::alloc()->initWithSizeAndColorSpace(this->width, this->height, newCs);
 	
 	if (colorSpace->metaClass() == ColorSpaceRGB::metaClassStatic())
 	{
@@ -51,7 +51,7 @@ Image* Image::imageByConvertingToColorSpace(ColorSpace *newCs)
 	return rv;
 }
 
-void Image::convertToColorSpace(ColorSpace *newCs)
+void SFImage::convertToColorSpace(ColorSpace *newCs)
 {
 	if (newCs->metaClass() == colorSpace->metaClass())
 		return;
@@ -97,9 +97,9 @@ void Image::convertToColorSpace(ColorSpace *newCs)
 	}
 }
 
-Image* Image::copy()
+SFImage* SFImage::copy()
 {
-	Image *rv = static_cast<Image*>(Object::copy());
+	SFImage *rv = static_cast<SFImage*>(SFObject::copy());
 	
 	rv->width = width;
 	rv->height = height;
@@ -115,7 +115,7 @@ Image* Image::copy()
 	return rv;
 }
 
-void Image::free()
+void SFImage::free()
 {
 	if (colorSpace != NULL)
 		colorSpace->release();
@@ -126,6 +126,6 @@ void Image::free()
 	super::free();
 }
 
-Image::~Image(void)
+SFImage::~SFImage(void)
 {
 }

@@ -1,28 +1,28 @@
 #include "stdafx.h"
-#include "Object.h"
+#include "SFObject.h"
 
 #include "Atomic.h"
 
-DEFINE_OBJECT_IMPL(Object);
+DEFINE_OBJECT_IMPL(SFObject);
 
-Object* Object::init()
+SFObject* SFObject::init()
 {
 	return this;
 }
 
-Object* Object::copy()
+SFObject* SFObject::copy()
 {
 	this->metaClass()->alloc();
 	return this->metaClass()->alloc();
 }
 
-Object* Object::retain()
+SFObject* SFObject::retain()
 {
 	if (this == NULL)
 		return NULL;
-	volatile UInt32 *retainPtr = (volatile UInt32*)&(this->_retainCount);
+	volatile unsigned int *retainPtr = (volatile unsigned int*)&(this->_retainCount);
 	
-	UInt32 origCnt, newCnt;
+	unsigned int origCnt, newCnt;
 
 	do
 	{
@@ -35,13 +35,13 @@ Object* Object::retain()
 	return this;
 }
 
-void Object::release()
+void SFObject::release()
 {
 	if (this == NULL)
 		return;
-	volatile UInt32 *retainPtr = (volatile UInt32*)&(this->_retainCount);
+	volatile unsigned int *retainPtr = (volatile unsigned int*)&(this->_retainCount);
 	
-	UInt32 origCnt, newCnt;
+	unsigned int origCnt, newCnt;
 
 	do
 	{
@@ -54,12 +54,12 @@ void Object::release()
 		this->free();
 }
 
-void Object::free()
+void SFObject::free()
 {
 	delete this;
 }
 
-Object::~Object(void)
+SFObject::~SFObject(void)
 {
 
 }

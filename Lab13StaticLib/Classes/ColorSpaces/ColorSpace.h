@@ -1,5 +1,5 @@
 #pragma once
-#include "object.h"
+#include "SFObject.h"
 #include <string>
 
 using namespace std;
@@ -7,11 +7,11 @@ using namespace std;
 #undef super
 #undef self
 
-#define super Object
+#define super SFObject
 #define self ColorSpace
 
 class ColorSpace :
-	public Object
+	public SFObject
 {
 	ABSTRACT_METACLASS_DECLARATION(self, super);
 

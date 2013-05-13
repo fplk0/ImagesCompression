@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Object.h"
+#include "SFObject.h"
 #include "SFStreamReader.h"
 #include "SFStreamWriter.h"
 
 #undef super
 #undef self
 
-#define super Object
+#define super SFObject
 
-class GenericCodec : public Object
+class GenericCodec : public SFObject
 {
 	START_METACLASS_DECLARATION(GenericCodec, super);
 	DEFINE_METACLASS_ABSTRACT_ALLOC(GenericCodec);

@@ -1,11 +1,11 @@
 #pragma once
-#include "Object.h"
+#include "SFObject.h"
 #include <string>
 
 using namespace std;
 
 #undef super
-#define super Object
+#define super SFObject
 
 #ifndef byte
 

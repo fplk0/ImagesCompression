@@ -67,7 +67,7 @@ void JPEGCodec::_fillZig()
 
 JPEGCodec* JPEGCodec::init()
 {
-	super::init();
+	super::initWithStreams(NULL, NULL);
 
 	_fillZig();
 	image = NULL;
