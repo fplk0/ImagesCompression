@@ -117,6 +117,7 @@ byte SFStreamReader::nextByte()
 		{
 			_shiftLeft(max(bufSize / 16, 1u));
 		}
+		curPos = bufPos + ((bitPos == 0) ? 0 : 1);
 	}
 
 	return buf[curPos];
@@ -269,6 +270,7 @@ byte SFStreamReader::nextByteInline()
 		{
 			_shiftLeft(max(bufSize / 16, 1u));
 		}
+		curPos = bufPos + ((bitPos == 0) ? 0 : 1);
 	}
 
 	return buf[curPos];

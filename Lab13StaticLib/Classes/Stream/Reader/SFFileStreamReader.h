@@ -24,6 +24,7 @@ class SFFileStreamReader :
 public:
 	
 	void setFileName(wstring _fileName);
+	wstring getFileName() { return fileName; };
 	virtual SFFileStreamReader* initWithFileName(wstring _fileName = L"", size_t bufSize = 1 << 14);
 
 	virtual bool rewind();
