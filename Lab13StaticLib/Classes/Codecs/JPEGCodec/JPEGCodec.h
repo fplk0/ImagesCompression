@@ -32,19 +32,25 @@ class JPEGCodec :
 		int verticalSubsampling;
 		int quantizationTableID;
 		inline int subBlocksPerBlock() { return horizontalSubsampling * verticalSubsampling; };
+		ComponentInfo()
+		{
+			horizontalSubsampling = verticalSubsampling = 1;
+		};
 	};
 
 	ComponentInfo componentsInfo[16];
 
 	float **pixels;
 	int *quantizationTables[16];
-	byte curByteRead;
+	byte curByte;
 	byte curFlag;
 	int curBitPos;
+
 	int singleDecodeBlockSize;
-	int mcusPerRow;
+	int mcusPerRow, mcusPerCol;
+	int mcuBlockWidth, mcuBlockHeight;
 	int mcuWidth, mcuHeight;
-	int mcuSize;
+	int mcuSize, mcuBlockSize;
 
 	struct CurrentDecodeBlockInfo
 	{
@@ -120,6 +126,7 @@ private:
 	void _decodeDQT();
 	void _decodeDHT();
 	void _decodeSOS();
+	void _dumpQuantizationTables();
 	void _decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr);
 
 	SF_FORCE_INLINE int _scanDCCoef(int compNum, int prevVal);

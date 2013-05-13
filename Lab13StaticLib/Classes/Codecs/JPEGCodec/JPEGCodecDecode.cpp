@@ -5,6 +5,7 @@
 
 #include "ColorSpaceRGB.h"
 #include "ColorSpaceYCbCr.h"
+#include "SFFileStreamReader.h"
 #include "JPEGCodec.h"
 
 void JPEGCodec::runDecode()
@@ -20,7 +21,7 @@ void JPEGCodec::runDecode()
 	reader->openStream();
 	restartInterval = 0;
 	curBitPos = 0;
-	curByteRead = 0;
+	curByte = 0;
 
 	memset(quantizationTables, 0, sizeof(quantizationTables));
 
@@ -91,8 +92,8 @@ void JPEGCodec::_decodeSOF0()
 	//componentsInfo = new ComponentInfo[componentsCount];
 
 	mcuSize = 0;
-	mcuWidth = 0;
-	mcuHeight = 0;
+	mcuBlockWidth = 0;
+	mcuBlockHeight = 0;
 
 	int subs = 1;
 	for (int i = 0; i < componentsCount; i++)
@@ -106,8 +107,8 @@ void JPEGCodec::_decodeSOF0()
 		reader->readByte(cb);
 		componentsInfo[id].horizontalSubsampling = cb >> 4;
 		componentsInfo[id].verticalSubsampling = cb & 0xF;
-		mcuWidth = max(mcuWidth, componentsInfo[id].horizontalSubsampling);
-		mcuHeight = max(mcuHeight, componentsInfo[id].verticalSubsampling);
+		mcuBlockWidth = max(mcuBlockWidth, componentsInfo[id].horizontalSubsampling);
+		mcuBlockHeight = max(mcuBlockHeight, componentsInfo[id].verticalSubsampling);
 
 		mcuSize += componentsInfo[id].subBlocksPerBlock();
 
@@ -115,7 +116,8 @@ void JPEGCodec::_decodeSOF0()
 		componentsInfo[id].quantizationTableID = cb;
 	}
 
-	mcusPerRow = (width + mcuWidth * 8 - 1) / (mcuWidth * 8);
+	mcusPerRow = (width + mcuBlockWidth * 8 - 1) / (mcuBlockWidth * 8);
+	mcusPerCol = (height + mcuBlockHeight * 8 - 1) / (mcuBlockHeight * 8);
 	mcuSize *= 64;
 }
 
@@ -244,14 +246,14 @@ byte JPEGCodec::readBit(int &to)
 	int &pos = curBitPos;
 	if (pos == 0)
 	{
-		if (curByteRead == 0xFF)
+		if (curByte == 0xFF)
 		{
 			if (reader->nextByteInline() == 0)
 				reader->skipBytesInline(1);
 		}
-		curByteRead = reader->nextByteInline();
+		curByte = reader->nextByteInline();
 		reader->readBitsInline(to, 1);
-		if (curByteRead == 0xFF)
+		if (curByte == 0xFF)
 		{
 			byte nextByte = reader->nextByteInline();
 			if (nextByte != 0)
@@ -367,13 +369,35 @@ void JPEGCodec::_decodeMCU(int *dcPredictors)
 			decodeBlockInfo->nextBlock();
 		}
 	}
+}
 
-	//curBitPos = 0;
-	//reader->padLastByteBits();
+void JPEGCodec::_dumpQuantizationTables()
+{
+	FILE *quantTablesFile = fopen("D:/QuantTablesDump.txt", "a");
+	fwprintf(quantTablesFile, L"%s\n", ((SFFileStreamReader*)reader)->getFileName());
+	for (int ci = 0; ci < componentsCount; ci++)
+	{
+		fwprintf(quantTablesFile, L"%d\n", ci);
+		for (int i = 0, ctr = 0; i < 64; i++)
+		{
+			fwprintf(quantTablesFile, L"%d ", quantizationTables[componentsInfo[ci].quantizationTableID][i]);
+			ctr++;
+			if (ctr == 8)
+			{
+				ctr = 0;
+				fwprintf(quantTablesFile, L"\n");
+			}
+		}
+		fwprintf(quantTablesFile, L"\n\n");
+	}
+	fwprintf(quantTablesFile, L"\n\n");
+
+	fclose(quantTablesFile);
 }
 
 void JPEGCodec::_decodeSOS()
 {
+	this->_dumpQuantizationTables();
 	image = SFImage::alloc()->initWithSizeAndColorSpace(width, height, ColorSpaceRGB::singleton());
 
 	int headerLength = reader->readShort();
@@ -398,7 +422,6 @@ void JPEGCodec::_decodeSOS()
 
 	reader->skipBytes(headerLength - scannedBytes); // Skip some unneeded bytes, if we have some
 
-	byte curByte = reader->nextByte();
 	int bitPos = 0;
 
 	if (restartInterval != 0)
@@ -415,7 +438,7 @@ void JPEGCodec::_decodeSOS()
 
 	while (true)
 	{
-		if (curMCU == 67*100+97)
+		if (curMCU == 40*240+156)
 			printf("zz");
 		this->_decodeMCU(dcPredictors);
 		curMCU++;
@@ -472,7 +495,7 @@ void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 	int *mcuBuf = _mcuBuf;
 	int *mcuConvertedBuf = _mcuConvertedBuf;
 
-	int mcuBlocksSize = mcuHeight * mcuWidth;
+	int mcuBlocksSize = mcuBlockHeight * mcuBlockWidth;
 
 	if (mcuBlocksSize > maxMCUSize)
 	{
@@ -486,6 +509,13 @@ void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 	{
 		for (int i = 0; i < 64; i++)
 			zeroBlock[i] = ColorSpaceYCbCr::singleton()->neutralValueForComponent(1);
+	}
+
+	int rowsPerBlock[16], colsPerBlock[16];
+	for (int ci = 0; ci < componentsCount; ci++)
+	{
+		rowsPerBlock[ci] = mcuBlockHeight / componentsInfo[ci].verticalSubsampling;
+		colsPerBlock[ci] = mcuBlockWidth / componentsInfo[ci].horizontalSubsampling;
 	}
 
 	while (currentBlockStart < blockAddr->pos)
@@ -542,20 +572,15 @@ void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 		int mcuRow = fullMcuIdx / mcusPerRow;
 		int mcuCol = fullMcuIdx % mcusPerRow;
 
-		int mcuWidthInPixels = mcuWidth * 8;
-		int mcuHeightInPixels = mcuHeight * 8;
+		int mcuWidthInPixels = mcuBlockWidth * 8;
+		int mcuHeightInPixels = mcuBlockHeight * 8;
 
 		int *currentSubBlocksStart[16];
 
 		ColorSpaceYCbCr *cs = ColorSpaceYCbCr::singleton();
 
-		int rowsPerBlock[16], colsPerBlock[16];
 		for (int ci = 0; ci < componentsCount; ci++)
 		{
-			rowsPerBlock[ci] = mcuHeight / componentsInfo[ci].verticalSubsampling;
-			colsPerBlock[ci] = mcuWidth / componentsInfo[ci].horizontalSubsampling;
-			
-
 			int idx = 0;
 
 			for (int i = 0; i < componentsInfo[ci].verticalSubsampling; i++)
@@ -592,8 +617,8 @@ void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 
 		cs->convertImageToRGB(mcuBuf, mcuConvertedBuf, mcuHeightInPixels * mcuWidthInPixels);
 
-		int mcuXPixel = mcuCol * mcuWidth * 8;
-		int mcuYPixel = mcuRow * mcuHeight * 8;
+		int mcuXPixel = mcuCol * mcuBlockWidth * 8;
+		int mcuYPixel = mcuRow * mcuBlockHeight * 8;
 		int posInBuf = 0;
 
 		for (int i = 0; i < mcuHeightInPixels; i++)
