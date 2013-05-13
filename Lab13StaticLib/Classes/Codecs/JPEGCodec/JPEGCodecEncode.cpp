@@ -6,6 +6,30 @@
 
 #include "dct.h"
 
+int JPEGCodec::defaultQuantizationTable[2][64] = 
+{
+	{ 
+		16, 11, 10, 16, 24, 40, 51, 61, 
+		12, 12, 14, 19, 26, 58, 60, 55, 
+		14, 13, 16, 24, 40, 57, 69, 56, 
+		14, 17, 22, 29, 51, 87, 80, 62, 
+		18, 22, 37, 56, 68, 109, 103, 77, 
+		24, 35, 55, 64, 81, 104, 113, 92, 
+		49, 64, 78, 87, 103, 121, 120, 101, 
+		72, 92, 95, 98, 112, 100, 103, 99
+	}, 
+	{
+		17, 18, 24, 47, 99, 99, 99, 99, 
+		18, 21, 26, 66, 99, 99, 99, 99, 
+		24, 26, 56, 99, 99, 99, 99, 99, 
+		47, 66, 99, 99, 99, 99, 99, 99, 
+		99, 99, 99, 99, 99, 99, 99, 99, 
+		99, 99, 99, 99, 99, 99, 99, 99, 
+		99, 99, 99, 99, 99, 99, 99, 99, 
+		99, 99, 99, 99, 99, 99, 99, 99 
+	}
+};
+
 void JPEGCodec::runEncode()
 {
 	componentsCount = 3;
@@ -56,6 +80,31 @@ void JPEGCodec::runEncode()
 	}
 
 
+}
+
+void JPEGCodec::_prepareQuantizationMatrix()
+{
+	quantizationTables[0] = new int[64];
+	quantizationTables[1] = new int[64];
+
+	double mulCoef = 1;
+	if (encodeQuality > 100)
+		encodeQuality = 100;
+	if (encodeQuality < 1)
+		encodeQuality = 1;
+
+	if (encodeQuality >= 50)
+	{
+		mulCoef = (100 - encodeQuality) / 50.0;
+	}
+	else
+		mulCoef = 50.0 / encodeQuality;
+
+	for (int i = 0; i < 64; i++)
+	{
+		quantizationTables[0][i] = (int)defaultQuantizationTable[0][i] * mulCoef;
+		quantizationTables[1][i] = (int)defaultQuantizationTable[1][i] * mulCoef;
+	}
 }
 
 void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)

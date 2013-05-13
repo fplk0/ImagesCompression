@@ -91,6 +91,7 @@ class JPEGCodec :
 	};
 
 	int *encodedBlocks;
+	int encodeQuality;
 
 	SF_FORCE_INLINE void _readNum(int &to, int len);
 	SF_FORCE_INLINE byte readBit(int &to); //If it finds a marker, it returns it's value, 0 otherwise
@@ -115,6 +116,8 @@ class JPEGCodec :
 		JPEGSectionCOM = 0xFE, 
 		JPEGSectionEOI = 0xD9, 
 	};
+
+	static int defaultQuantizationTable[2][64];
 
 public:
 	
@@ -144,10 +147,12 @@ private:
 //Decoding
 public:
 	void setHorizontalSubsamplingForComponent(int horizontalSubsampling, int component);
+	void setEncodeQuality(int _encodeQuality) { encodeQuality = _encodeQuality;};
 	virtual void runDecode();
-	void _encodeSingleBlock(int startBlockIndex, int blocksCount);
-private:
 
+private:
+	void _prepareQuantizationMatrix();
+	void _encodeSingleBlock(int startBlockIndex, int blocksCount);
 
 protected:
 	virtual ~JPEGCodec(void);

@@ -71,6 +71,7 @@ JPEGCodec* JPEGCodec::init()
 
 	_fillZig();
 	image = NULL;
+	encodeQuality = 90;
 
 	return this;
 }
