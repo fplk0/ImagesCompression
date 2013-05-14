@@ -7,6 +7,7 @@
 #include "ColorSpaceYCbCr.h"
 
 #include "SFFileStreamReader.h"
+#include <ctime>
 
 #include "JPEGCodec.h"
 
@@ -24,6 +25,9 @@ void JPEGCodec::runDecode()
 	restartInterval = 0;
 	curBitPos = 0;
 	curByte = 0;
+
+	taskScheduler = SFTaskScheduler::singleInstance();
+	taskIndex = taskScheduler->nextTasksType();
 
 	memset(quantizationTables, 0, sizeof(quantizationTables));
 
@@ -430,7 +434,7 @@ void JPEGCodec::_decodeSOS()
 	if (restartInterval != 0)
 		singleDecodeBlockSize = restartInterval;
 	else
-		singleDecodeBlockSize = 1;
+		singleDecodeBlockSize = 32;
 
 	int curMCU = 0;
 	decodeBlockInfo = new CurrentDecodeBlockInfo(singleDecodeBlockSize * mcuSize, curMCU);
@@ -438,6 +442,8 @@ void JPEGCodec::_decodeSOS()
 
 	int *dcPredictors = new int[componentsCount];
 	memset(dcPredictors, 0, sizeof(int) * componentsCount);
+
+	clock_t decodeStart = clock();
 
 	while (true)
 	{
@@ -469,7 +475,6 @@ void JPEGCodec::_decodeSOS()
 			{
 				reader->padLastByteBits();
 				reader->skipBytes(1);
-				printf("%d\n", curMCU);
 				break;
 			}
 			else
@@ -481,14 +486,26 @@ void JPEGCodec::_decodeSOS()
 
 	if (decodeBlockInfo->pos > 0)
 		_decodeSingleBlock(decodeBlockInfo);
+
+	taskScheduler->waitForTaskFinish(taskIndex);
+
+	printf("Blocks decode time: %lf\n", (clock() - decodeStart) / (double)CLOCKS_PER_SEC);
 }
 
 static int zeroBlock[64] = { 0 };
 
-//#define __fprintf(file, format, ...) fprintf(file, format, __VA_ARGS__)
-#define __fprintf(file, format, ...)
-
 void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
+{
+	JPEGDecodeTask *decodeTask = (JPEGDecodeTask*)JPEGDecodeTask::alloc()->init();
+	decodeTask->codec = this;
+	this->retain();
+	decodeTask->decodeBlockInfo = blockAddr;
+	
+	taskScheduler->addTask(decodeTask, taskIndex);
+	decodeTask->release();
+}
+
+void JPEGCodec::_decodeSingleBlockThreaded(CurrentDecodeBlockInfo *blockAddr)
 {
 	int currentBlockStart = 0;
 	int mcuIdx = 0;
@@ -525,21 +542,12 @@ void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 		colsPerBlock[ci] = mcuBlockWidth / componentsInfo[ci].horizontalSubsampling;
 	}
 
-	FILE *dumpFile = fopen("dump.txt", "w");
-
 	while (currentBlockStart < blockAddr->pos)
 	{
 		int smallBlockStart = currentBlockStart;
 		int mcuStart = currentBlockStart;
 
 		//Dequantization & IDCT start
-
-		for (int k = 0; k < blockAddr->pos; k++)
-		{
-			__fprintf(dumpFile, "%d ", blockAddr->block[k]);
-		}
-
-		__fprintf(dumpFile, "\n");
 
 		for (int compIdx = 0; compIdx < componentsCount; compIdx++)
 		{
@@ -587,12 +595,6 @@ void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 		}
 
 		//Dequantization & IDCT finish
-
-		for (int k = 0; k < blockAddr->pos; k++)
-		{
-			__fprintf(dumpFile, "%d ", blockAddr->block[k]);
-		}
-		__fprintf(dumpFile, "\n");
 
 		int fullMcuIdx = blockAddr->startMCUIndex + mcuIdx;
 		int mcuRow = fullMcuIdx / mcusPerRow;
@@ -647,14 +649,7 @@ void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 
 		//De-subsampling finish
 
-		for (int i = 0; i < mcuHeightInPixels * mcuWidthInPixels * 3; i++)
-			__fprintf(dumpFile, "%d ", mcuBuf[i]);
-		__fprintf(dumpFile, "\n");
-
 		cs->convertImageToRGB(mcuBuf, mcuConvertedBuf, mcuHeightInPixels * mcuWidthInPixels);
-
-		for (int i = 0; i < mcuHeightInPixels * mcuWidthInPixels * 3; i++)
-			__fprintf(dumpFile, "%d ", mcuConvertedBuf[i]);
 
 		int mcuXPixel = mcuCol * mcuBlockWidth * 8;
 		int mcuYPixel = mcuRow * mcuBlockHeight * 8;
@@ -679,8 +674,6 @@ void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 		mcuIdx++;
 		currentBlockStart += mcuSize;
 	}
-
-	fclose(dumpFile);
 
 	if (mcuBlocksSize > maxMCUSize)
 	{

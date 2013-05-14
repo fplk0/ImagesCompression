@@ -4,9 +4,10 @@
 #include "dct.h"
 #include <algorithm>
 
-#include "JPEGCodec.h"
-
 #include <Windows.h>
+#include <ctime>
+
+#include "JPEGCodec.h"
 
 int JPEGCodec::defaultQuantizationTable[2][64] = 
 {
@@ -56,6 +57,7 @@ void JPEGCodec::runEncode()
 {
 	_prepareQuantizationMatrix();
 	componentsCount = 3;
+	taskScheduler = SFTaskScheduler::singleInstance();
 
 	width = image->getWidth();
 	height = image->getHeight();
@@ -91,7 +93,11 @@ void JPEGCodec::runEncode()
 
 	encodedBlocks = new int[mcuSize * totalMCUs];
 
-	int mcusPerBlock = 16;
+	int mcusPerBlock = 128;
+
+	taskIndex = SFTaskScheduler::singleInstance()->nextTasksType();
+
+	clock_t encodeStart = clock();
 
 	for (int i = 0, iEnd = totalMCUs / mcusPerBlock; i < iEnd; i++)
 	{
@@ -102,6 +108,10 @@ void JPEGCodec::runEncode()
 	{
 		_encodeSingleBlock(totalMCUs - totalMCUs % mcusPerBlock, totalMCUs % mcusPerBlock);
 	}
+
+	taskScheduler->waitForTaskFinish(taskIndex);
+
+	printf("Blocks encode time: %lf\n", (clock() - encodeStart) / (double)CLOCKS_PER_SEC);
 
 	_prepareHuffmanTables();
 
@@ -117,6 +127,7 @@ void JPEGCodec::runEncode()
 	_encodeSOS();
 
 	writer->closeStream();
+	_cleanupEncode();
 }
 
 void JPEGCodec::_prepareQuantizationMatrix()
@@ -421,8 +432,6 @@ void JPEGCodec::_encodeSOS()
 	int dcPredictors[3];
 	memset(dcPredictors, 0, sizeof(dcPredictors));
 
-	FILE *dumpFile = fopen("offsets.txt", "w");
-
 	for (int cmcu = 0; cmcu < totalMCUs; cmcu++)
 	{
 		for (int ci = 0; ci < 3; ci++)
@@ -436,8 +445,6 @@ void JPEGCodec::_encodeSOS()
 
 			for (int i = 0, iEnd = componentsInfo[ci].subBlocksPerBlock(); i < iEnd; i++)
 			{
-				__fprintf(dumpFile, "%X.%d\n", writer->bufPos, curBitPos);
-
 				int nextDCVal = encodedBlocks[posInBlock];
 				int dcValDiff = nextDCVal - dcPredictors[ci];
 				dcPredictors[ci] = nextDCVal;
@@ -461,8 +468,6 @@ void JPEGCodec::_encodeSOS()
 						code = acHuff.codes[curByte];
 						codeLen = acHuff.lengths[curByte];
 
-						__fprintf(dumpFile, "Z%X.%d\n", writer->bufPos, curBitPos);
-
 						_writeNum(code, codeLen, 0);
 					}
 					else
@@ -474,8 +479,6 @@ void JPEGCodec::_encodeSOS()
 							code = acHuff.codes[curByte];
 							codeLen = acHuff.lengths[curByte];
 
-							__fprintf(dumpFile, "%X.%d\n", writer->bufPos, curBitPos);
-
 							_writeNum(code, codeLen, 0);
 						}
 						curByte = zeroCount << 4;
@@ -486,21 +489,17 @@ void JPEGCodec::_encodeSOS()
 						code = acHuff.codes[curByte];
 						codeLen = acHuff.lengths[curByte];
 
-						__fprintf(dumpFile, "%X.%d\n", writer->bufPos, curBitPos);
-
 						_writeNum(code, codeLen, 0);
 						_writeNum(encodedBlocks[posInBlock + j], numLen, 1);
 					}
 				}
 
-				__fprintf(dumpFile, "\n\n", writer->bufPos, curBitPos);
 				posInBlock += 64;
 			}
 		}
 	}
 
 	_flushBits();
-	fclose(dumpFile);
 
 	writer->writeByte(0xFF);
 	writer->writeByte(JPEGSectionEOI);
@@ -635,6 +634,17 @@ void JPEGCodec::_buildHuffmanEncodeTable(HuffmanEncodeInfo *huffmanPtr, int *fre
 
 void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 {
+	JPEGEncodeTask *encodeTask = (JPEGEncodeTask*)JPEGEncodeTask::alloc()->init();
+	encodeTask->startBlockIndex = startBlockIndex;
+	encodeTask->blocksCount = blocksCount;
+	encodeTask->codec = this;
+	this->retain();
+	taskScheduler->addTask(encodeTask, taskIndex);
+	encodeTask->release();
+}
+
+void JPEGCodec::_encodeSingleBlockThreaded(int startBlockIndex, int blocksCount)
+{
 	int mcuYPixel = startBlockIndex / mcusPerRow;
 	mcuYPixel *= mcuHeight;
 	int mcuXPixel = startBlockIndex % mcusPerRow;
@@ -665,8 +675,6 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 		colsPerBlock[ci] = mcuBlockWidth / componentsInfo[ci].horizontalSubsampling;
 	}
 
-	FILE *dumpFile = fopen("dump2.txt", "w");
-
 	for (int bnum = 0; bnum < blocksCount; bnum++)
 	{
 		int curBlockIndex = startBlockIndex + bnum;
@@ -694,15 +702,8 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 			}
 		}
 
-		for (int i = 0; i < mcuHeight * mcuWidth * 3; i++)
-			__fprintf(dumpFile, "%d ", mcuBuf[i]);
-		__fprintf(dumpFile, "\n");
+		cs->convertImageFromRGB(mcuBuf, mcuConvertedBuf, mcuHeight * mcuWidth);
 
-		cs->convertImageFromRGB(mcuBuf, mcuConvertedBuf, mcuSize);
-
-		for (int i = 0; i < mcuHeight * mcuWidth * 3; i++)
-			__fprintf(dumpFile, "%d ", mcuConvertedBuf[i]);
-		__fprintf(dumpFile, "\n");
 		int posInMCUBuf = 0;
 
 		//Subsampling
@@ -760,10 +761,6 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 			}
 		}
 
-		for (int i = 0; i < posInMCUBuf; i++)
-			__fprintf(dumpFile, "%d ", mcuStartPtr[i]);
-
-		__fprintf(dumpFile, "\n");
 		//Subsampling finish
 
 		//DCT and quantization
@@ -810,9 +807,6 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 
 				for (int k = 0; k < 64; k++)
 				{
-					__fprintf(dumpFile, "%d ", block[k]);
-					if (k%8==7)
-						__fprintf(dumpFile, "\n");
 					block[k] = (block[k] + quantizationTable[k] / 2) / quantizationTable[k];
 				}
 
@@ -823,15 +817,6 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 			}
 		}
 
-		__fprintf(dumpFile, "\n");
-		for (int i = 0; i < posInMCUBuf; i++)
-		{
-			__fprintf(dumpFile, "%d ", mcuStartPtr[i]);
-			if (i%8==7)
-				__fprintf(dumpFile, "\n");
-		}
-		__fprintf(dumpFile, "\n");
-
 		mcuXPixel += mcuWidth;
 		if (mcuXPixel >= width)
 		{
@@ -840,5 +825,16 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 		}
 	}
 
-	fclose(dumpFile);
+	if (mcuBlockSize > maxMCUSize)
+	{
+		delete [] mcuBuf;
+		delete [] mcuConvertedBuf;
+	}
+}
+
+void JPEGCodec::_cleanupEncode()
+{
+	delete [] encodedBlocks;
+	delete [] quantizationTables[0];
+	delete [] quantizationTables[1];
 }

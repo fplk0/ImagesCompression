@@ -4,6 +4,8 @@
 #include <map>
 #include "SFImage.h"
 #include "PlatformSpecific.h"
+#include "SFTask.h"
+#include "SFTaskScheduler.h"
 
 #undef super
 #undef self
@@ -125,6 +127,50 @@ class JPEGCodec :
 
 	static int defaultQuantizationTable[2][64];
 
+	//public:
+	class JPEGEncodeTask : public SFTask
+	{
+		DEFAULT_METACLASS_DECLARATION(JPEGEncodeTask, SFTask);
+
+	public:
+		JPEGCodec *codec;
+		int startBlockIndex, blocksCount;
+		virtual void runTask()
+		{
+			codec->_encodeSingleBlockThreaded(startBlockIndex, blocksCount);
+		}
+
+		virtual void free()
+		{
+			codec->release();
+			SFTask::free();
+		}
+	};
+
+	class JPEGDecodeTask : public SFTask
+	{
+		DEFAULT_METACLASS_DECLARATION(JPEGDecodeTask, SFTask);
+
+	public:
+		JPEGCodec *codec;
+
+		CurrentDecodeBlockInfo *decodeBlockInfo;
+
+		virtual void runTask()
+		{
+			codec->_decodeSingleBlockThreaded(decodeBlockInfo);
+		}
+
+		virtual void free()
+		{
+			codec->release();
+			SFTask::free();
+		}
+	};
+
+	friend class JPEGEncodeTask;
+	friend class JPEGDecodeTask;
+
 public:
 	
 	virtual JPEGCodec* init();
@@ -143,12 +189,15 @@ private:
 	void _decodeSOS();
 	void _dumpQuantizationTables();
 	void _decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr);
+	void _decodeSingleBlockThreaded(CurrentDecodeBlockInfo *blockAddr);
 
 	SF_FORCE_INLINE int _scanDCCoef(int compNum, int prevVal);
 	SF_FORCE_INLINE int _scanACCoef(int compNum);
 	SF_FORCE_INLINE void _decodeMCU(int *dcPredictors);
 
 	void _cleanupDecode();
+	int taskIndex;
+	SFTaskScheduler *taskScheduler;
 
 //Decoding
 public:
@@ -172,9 +221,11 @@ private:
 	void _encodeSOS();
 	void _prepareQuantizationMatrix();
 	void _encodeSingleBlock(int startBlockIndex, int blocksCount);
+	void _encodeSingleBlockThreaded(int startBlockIndex, int blocksCount);
 	void _prepareHuffmanTables();
 	void _buildHuffmanEncodeTable(HuffmanEncodeInfo *huffmanPtr, int *frequencies);
 
+	void _cleanupEncode();
 //Other
 public:
 	int getHorizontalSubsamplingForComponent(int component);

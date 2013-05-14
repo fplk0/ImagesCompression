@@ -6,6 +6,12 @@
 
 DEFINE_OBJECT_IMPL(self);
 
+JPEGCodec::JPEGEncodeTask::JPEGEncodeTaskMetaClass JPEGCodec::JPEGEncodeTask::metaObject;
+const std::wstring JPEGCodec::JPEGEncodeTask::JPEGEncodeTaskMetaClass::_className = L"JPEGCodec::JPEGEncodeTask";
+
+JPEGCodec::JPEGDecodeTask::JPEGDecodeTaskMetaClass JPEGCodec::JPEGDecodeTask::metaObject;
+const std::wstring JPEGCodec::JPEGDecodeTask::JPEGDecodeTaskMetaClass::_className = L"JPEGCodec::JPEGDecodeTask";
+
 int JPEGCodec::_zig[64], JPEGCodec::_dezig[64];
 
 void JPEGCodec::_fillZig()
