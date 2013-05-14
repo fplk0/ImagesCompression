@@ -399,7 +399,7 @@ void JPEGCodec::_dumpQuantizationTables()
 
 void JPEGCodec::_decodeSOS()
 {
-	this->_dumpQuantizationTables();
+	//this->_dumpQuantizationTables();
 	image = SFImage::alloc()->initWithSizeAndColorSpace(width, height, ColorSpaceRGB::singleton());
 	image->setComment(comment);
 
@@ -476,6 +476,8 @@ void JPEGCodec::_decodeSOS()
 				reader->rewind(1);
 		}
 	}
+
+	delete [] dcPredictors;
 
 	if (decodeBlockInfo->pos > 0)
 		_decodeSingleBlock(decodeBlockInfo);
@@ -685,9 +687,12 @@ void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 		delete [] mcuBuf;
 		delete [] mcuConvertedBuf;
 	}
+	delete blockAddr;
 }
 
 void JPEGCodec::_cleanupDecode()
 {
-
+	for (int i = 0; i < 16; i++)
+		if (quantizationTables[i] != NULL)
+			delete [] quantizationTables[i];
 }
