@@ -5,7 +5,7 @@ DEFINE_OBJECT_IMPL(self);
 
 SFFileStreamWriter* SFFileStreamWriter::init()
 {
-	return static_cast<SFFileStreamWriter*>(this->initWithBufSize(bufSize));
+	return static_cast<SFFileStreamWriter*>(this->initWithBufSize());
 }
 
 SFFileStreamWriter* SFFileStreamWriter::initWithFileName(wstring _fileName, size_t bufSize)

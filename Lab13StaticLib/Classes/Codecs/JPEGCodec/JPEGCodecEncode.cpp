@@ -1,10 +1,12 @@
 #include "stdafx.h"
 
 #include "ColorSpaceYCbCr.h"
+#include "dct.h"
+#include <algorithm>
 
 #include "JPEGCodec.h"
 
-#include "dct.h"
+#include <Windows.h>
 
 int JPEGCodec::defaultQuantizationTable[2][64] = 
 {
@@ -30,8 +32,29 @@ int JPEGCodec::defaultQuantizationTable[2][64] =
 	}
 };
 
+void JPEGCodec::setHorizontalSubsamplingForComponent(int horizontalSubsampling, int component)
+{
+	componentsInfo[component].horizontalSubsampling = horizontalSubsampling;
+}
+
+void JPEGCodec::setVerticalSubsamplingForComponent(int verticalSubsampling, int component)
+{
+	componentsInfo[component].verticalSubsampling = verticalSubsampling;
+}
+
+int JPEGCodec::getHorizontalSubsamplingForComponent(int component)
+{
+	return componentsInfo[component].horizontalSubsampling;
+}
+
+int JPEGCodec::getVerticalSubsamplingForComponent(int component)
+{
+	return componentsInfo[component].verticalSubsampling;
+}
+
 void JPEGCodec::runEncode()
 {
+	_prepareQuantizationMatrix();
 	componentsCount = 3;
 
 	width = image->getWidth();
@@ -51,11 +74,12 @@ void JPEGCodec::runEncode()
 
 	mcuSize *= 64;
 
-	componentsInfo[0].quantizationTableID = 1;
-	componentsInfo[1].quantizationTableID = 2;
-	componentsInfo[2].quantizationTableID = 2;
+	componentsInfo[0].quantizationTableID = 0;
+	componentsInfo[1].quantizationTableID = 1;
+	componentsInfo[2].quantizationTableID = 1;
 
 	mcuBlockWidth = maxHorizontalSubsampling;
+	mcuBlockHeight = maxVerticalSubsampling;
 	mcuWidth = mcuBlockWidth * 8;
 	mcuHeight = mcuBlockHeight * 8;
 
@@ -79,7 +103,20 @@ void JPEGCodec::runEncode()
 		_encodeSingleBlock(totalMCUs - totalMCUs % mcusPerBlock, totalMCUs % mcusPerBlock);
 	}
 
+	_prepareHuffmanTables();
 
+	writer->openStream();
+
+	writer->writeByte(0xFF);
+	writer->writeByte(JPEGSectionSOI);
+
+	_encodeComment();
+	_encodeSOF0();
+	_encodeDQT();
+	_encodeDHT();
+	_encodeSOS();
+
+	writer->closeStream();
 }
 
 void JPEGCodec::_prepareQuantizationMatrix()
@@ -103,7 +140,493 @@ void JPEGCodec::_prepareQuantizationMatrix()
 	for (int i = 0; i < 64; i++)
 	{
 		quantizationTables[0][i] = (int)defaultQuantizationTable[0][i] * mulCoef;
+		if (quantizationTables[0][i] < 1)
+			quantizationTables[0][i] = 1;
+		if (quantizationTables[0][i] > 255)
+			quantizationTables[0][i] = 255;
+
 		quantizationTables[1][i] = (int)defaultQuantizationTable[1][i] * mulCoef;
+
+		if (quantizationTables[1][i] < 1)
+			quantizationTables[1][i] = 1;
+		if (quantizationTables[1][i] > 255)
+			quantizationTables[1][i] = 255;
+	}
+}
+
+int JPEGCodec::lengthOfNum(int num)
+{
+	if (num < 0)
+		num = -num;
+	int i = 0, len = 0;
+	while (num > i)
+	{
+		len++;
+		i <<= 1;
+		i++;
+	}
+	return len;
+}
+
+void JPEGCodec::_encodeComment()
+{
+	int commentLength = image->comment.length();
+
+	if (commentLength == 0)
+		return;
+	writer->writeByte(0xFF);
+	writer->writeByte(JPEGSectionCOM);
+
+	int fullCommentLength = commentLength * 3 + 5;
+	char *commentBuffer = new char[fullCommentLength];
+
+	int writtenBytes = WideCharToMultiByte(CP_UTF8, 0, image->comment.c_str(), -1, commentBuffer, fullCommentLength, NULL, NULL);
+	if (commentBuffer[writtenBytes-1] == 0)
+		writtenBytes--;
+
+	int maxSize = (1 << 16) - 3;
+	int size = min(writtenBytes, maxSize);
+
+	writer->writeShort(size+2);
+	writer->writeBytes((byte*)commentBuffer, (size_t)size);
+
+	delete [] commentBuffer;
+}
+
+void JPEGCodec::_encodeSOF0()
+{
+	writer->writeByte(0xFF);
+	writer->writeByte(JPEGSectionSOF0);
+
+	int sectionLength = 17;
+
+	writer->writeShort(sectionLength);
+	writer->writeByte(8);
+	writer->writeShort(height);
+	writer->writeShort(width);
+	writer->writeByte(3);
+
+	for (int i = 0; i < 3; i++)
+	{
+		writer->writeByte(i+1);
+		int subsInfo = componentsInfo[i].horizontalSubsampling << 4;
+		subsInfo |= componentsInfo[i].verticalSubsampling;
+		writer->writeByte(subsInfo);
+
+		writer->writeByte(componentsInfo[i].quantizationTableID);
+	}
+}
+
+void JPEGCodec::_encodeDQT()
+{
+	for (int comp = 0; comp < 2; comp++)
+	{
+		writer->writeByte(0xFF);
+		writer->writeByte(JPEGSectionDQT);
+
+		unsigned short tableLength = 67;
+		writer->writeShort(tableLength);
+
+		writer->writeByte(comp);
+		for (int i = 0; i < 64; i++)
+		{
+			writer->writeByte(quantizationTables[comp][_zig[i]]);
+		}
+	}
+}
+
+void JPEGCodec::_encodeDHT()
+{
+	for (int comp = 0; comp < 2; comp++)
+	{
+		for (int dcac = 0; dcac < 2; dcac++)
+		{
+			HuffmanEncodeInfo *huffPtr;
+			if (dcac == 0)
+				huffPtr = &dcHuffmanEncodeTables[comp];
+			else
+				huffPtr = &acHuffmanEncodeTables[comp];
+
+			writer->writeByte(0xFF);
+			writer->writeByte(JPEGSectionDHT);
+
+			int huffLen = 3 + 16;
+
+			int codesCount = 0;
+			for (int i = 0; i < 16; i++)
+				codesCount += huffPtr->lengthsCount[i];
+			huffLen += codesCount;
+
+			writer->writeShort(huffLen);
+
+			int fullTableID = dcac << 4;
+			fullTableID |= comp;
+
+			writer->writeByte(fullTableID);
+
+			for (int i = 0; i < 16; i++)
+				writer->writeByte(huffPtr->lengthsCount[i]);
+
+			int ptrInVals = 0;
+			for (int i = 0; i < 16; i++)
+			{
+				for (int j = 0, jEnd = huffPtr->lengthsCount[i]; j < jEnd; j++)
+					writer->writeByte(huffPtr->freqSortedVals[ptrInVals++]);
+			}
+		}
+	}
+}
+
+void JPEGCodec::_prepareHuffmanTables()
+{
+	int dcFreqs[2][256], acFreqs[2][256];
+
+	memset(dcFreqs, 0, sizeof(dcFreqs));
+	memset(acFreqs, 0, sizeof(acFreqs));
+
+	int totalMCUs = mcusPerCol * mcusPerRow;
+
+	int posInBlock = 0;
+
+	int dcPredictors[3];
+	memset(dcPredictors, 0, sizeof(dcPredictors));
+
+	for (int cmcu = 0; cmcu < totalMCUs; cmcu++)
+	{
+		for (int ci = 0; ci < 3; ci++)
+		{
+			int curInd = 0;
+			if (ci > 0)
+				curInd = 1;
+
+			for (int i = 0, iEnd = componentsInfo[ci].subBlocksPerBlock(); i < iEnd; i++)
+			{
+				int nextDCVal = encodedBlocks[posInBlock];
+				int dcValDiff = nextDCVal - dcPredictors[ci];
+				dcPredictors[ci] = nextDCVal;
+
+				int valToEncode = lengthOfNum(dcValDiff);
+				dcFreqs[curInd][valToEncode]++;
+
+				for (int j = 1; j < 64; j++)
+				{
+					int zeroCount = 0;
+					for (; j < 64; j++, zeroCount++)
+						if (encodedBlocks[posInBlock + j] != 0)
+							break;
+					int curByte = 0;
+					if (j >= 64)
+						acFreqs[curInd][curByte]++;
+					else
+					{
+						while (zeroCount > 15)
+						{
+							zeroCount -= 15;
+							curByte = 0xF0;
+							acFreqs[curInd][curByte]++;
+						}
+						curByte = zeroCount << 4;
+						curByte |= lengthOfNum(encodedBlocks[posInBlock + j]);
+						acFreqs[curInd][curByte]++;
+					}
+				}
+				posInBlock += 64;
+			}
+		}
+	}
+
+	_buildHuffmanEncodeTable(&dcHuffmanEncodeTables[0], dcFreqs[0]);
+	_buildHuffmanEncodeTable(&dcHuffmanEncodeTables[1], dcFreqs[1]);
+	_buildHuffmanEncodeTable(&acHuffmanEncodeTables[0], acFreqs[0]);
+	_buildHuffmanEncodeTable(&acHuffmanEncodeTables[1], acFreqs[1]);
+}
+
+void JPEGCodec::_writeBit(int bit)
+{
+	bit &= 1;
+	curByte |= bit << (7 - curBitPos);
+	curBitPos++;
+
+	if (curBitPos == 8)
+	{
+		curBitPos = 0;
+		writer->writeByte(curByte);
+		if (curByte == 0xFF)
+			writer->writeByte(0);
+		curByte = 0;
+	}
+}
+
+void JPEGCodec::_flushBits()
+{
+	if (curBitPos > 0)
+		writer->writeByte(curByte);
+}
+
+void JPEGCodec::_writeNum(int num, int len, bool isSigned)
+{
+	if (len == 0)
+		return;
+	if (isSigned)
+	{
+		int fb = 1;
+		if (num < 0)
+		{
+			fb = 0;
+			num = (1 << len) + num - 1;
+		}
+		_writeBit(fb);
+		len--;
+	}
+	len--;
+	while (len >= 0)
+	{
+		int curBit = num >> len;
+		curBit &= 1;
+		_writeBit(curBit);
+		len--;
+	}
+}
+
+void JPEGCodec::_encodeSOS()
+{
+	writer->writeByte(0xFF);
+	writer->writeByte(JPEGSectionSOS);
+
+	writer->writeShort(12);
+	writer->writeByte(componentsCount);
+
+	for (int i = 0; i < componentsCount; i++)
+	{
+		writer->writeByte(componentsInfo[i].id);
+		int huffID = componentsInfo[i].quantizationTableID;
+		huffID = (huffID << 4) + huffID;
+		writer->writeByte(huffID);
+	}
+
+	writer->writeByte(0x00);
+	writer->writeByte(0x3F);
+	writer->writeByte(0x00);
+
+	int totalMCUs = mcusPerCol * mcusPerRow;
+
+	curBitPos = 0;
+	curByte = 0;
+
+	int posInBlock = 0;
+
+	int dcPredictors[3];
+	memset(dcPredictors, 0, sizeof(dcPredictors));
+
+	FILE *dumpFile = fopen("offsets.txt", "w");
+
+	for (int cmcu = 0; cmcu < totalMCUs; cmcu++)
+	{
+		for (int ci = 0; ci < 3; ci++)
+		{
+			int curInd = 0;
+			if (ci > 0)
+				curInd = 1;
+
+			HuffmanEncodeInfo &dcHuff = dcHuffmanEncodeTables[curInd];
+			HuffmanEncodeInfo &acHuff = acHuffmanEncodeTables[curInd];
+
+			for (int i = 0, iEnd = componentsInfo[ci].subBlocksPerBlock(); i < iEnd; i++)
+			{
+				fprintf(dumpFile, "%X.%d\n", writer->bufPos, curBitPos);
+
+				int nextDCVal = encodedBlocks[posInBlock];
+				int dcValDiff = nextDCVal - dcPredictors[ci];
+				dcPredictors[ci] = nextDCVal;
+
+				int numLen = lengthOfNum(dcValDiff);
+				
+				int code = dcHuff.codes[numLen];
+				int codeLen = dcHuff.lengths[numLen];
+				_writeNum(code, codeLen, 0);
+				_writeNum(dcValDiff, numLen, 1);
+
+				for (int j = 1; j < 64; j++)
+				{
+					int zeroCount = 0;
+					for (; j < 64; j++, zeroCount++)
+						if (encodedBlocks[posInBlock + j] != 0)
+							break;
+					int curByte = 0;
+					if (j >= 64)
+					{
+						code = acHuff.codes[curByte];
+						codeLen = acHuff.lengths[curByte];
+
+						fprintf(dumpFile, "Z%X.%d\n", writer->bufPos, curBitPos);
+
+						_writeNum(code, codeLen, 0);
+					}
+					else
+					{
+						while (zeroCount > 15)
+						{
+							zeroCount -= 15;
+							curByte = 0xF0;
+							code = acHuff.codes[curByte];
+							codeLen = acHuff.lengths[curByte];
+
+							fprintf(dumpFile, "%X.%d\n", writer->bufPos, curBitPos);
+
+							_writeNum(code, codeLen, 0);
+						}
+						curByte = zeroCount << 4;
+
+						numLen = lengthOfNum(encodedBlocks[posInBlock + j]);
+						curByte |= numLen;
+
+						code = acHuff.codes[curByte];
+						codeLen = acHuff.lengths[curByte];
+
+						fprintf(dumpFile, "%X.%d\n", writer->bufPos, curBitPos);
+
+						_writeNum(code, codeLen, 0);
+						_writeNum(encodedBlocks[posInBlock + j], numLen, 1);
+					}
+				}
+
+				fprintf(dumpFile, "\n\n", writer->bufPos, curBitPos);
+				posInBlock += 64;
+			}
+		}
+	}
+
+	_flushBits();
+	fclose(dumpFile);
+
+	writer->writeByte(0xFF);
+	writer->writeByte(JPEGSectionEOI);
+}
+
+void JPEGCodec::_buildHuffmanEncodeTable(HuffmanEncodeInfo *huffmanPtr, int *frequencies)
+{
+	typedef pair<int, int> pii;
+	pii sortedCodes[257];
+	for (int i = 0; i < 256; i++)
+	{
+		sortedCodes[i].first = frequencies[i] * 2;
+		sortedCodes[i].second = i;
+	}
+	sortedCodes[256].first = 1;
+	sortedCodes[256].second = 256;
+
+	struct CoinsList
+	{
+		int currentValue;
+		int currentElem;
+		int nextIndex;
+		int lastIndex;
+		CoinsList()
+		{
+			nextIndex = -1;
+		}
+	} coinsList[257*16];
+
+	sort(sortedCodes, sortedCodes + 257);
+
+	int prevRoundList[2][257];
+	int prevRoundLength[2] = {0, 0};
+	int cur = 0;
+	int next = 1;
+	for (int i = 0; i < 16; i++)
+	{
+		int startIdx = 257*i;
+		for (int j = 0; j < 257; j++)
+		{
+			coinsList[startIdx + j].currentElem = sortedCodes[j].second;
+			coinsList[startIdx + j].currentValue = sortedCodes[j].first;
+			coinsList[startIdx + j].lastIndex = startIdx + j;
+		}
+
+		int curPtr = 0, prevPtr = 0;
+		int total = prevRoundLength[cur] + 257;
+		int pickedCnt = 0;
+		int pickedInds[2];
+
+		prevRoundLength[next] = 0;
+
+		while (total > 0)
+		{
+			int smallestCurVal = 1e9;
+			if (curPtr < 257)
+				smallestCurVal = sortedCodes[curPtr].first;
+			int smallestPrevVal = 1e9;
+			int prevRoundInd;
+			if (prevPtr < prevRoundLength[cur])
+			{
+				prevRoundInd = prevRoundList[cur][prevPtr];
+				smallestPrevVal = coinsList[prevRoundInd].currentValue;
+			}
+
+			if (smallestCurVal < smallestPrevVal)
+			{
+				pickedInds[pickedCnt++] = startIdx + curPtr;
+				curPtr++;
+			}
+			else
+			{
+				pickedInds[pickedCnt++] = prevRoundInd;
+				prevPtr++;
+			}
+
+			total--;
+			if (pickedCnt == 2)
+			{
+				int &cLen = prevRoundLength[next];
+				prevRoundList[next][cLen++] = pickedInds[0];
+
+				coinsList[pickedInds[0]].currentValue += coinsList[pickedInds[1]].currentValue;
+				coinsList[coinsList[pickedInds[0]].lastIndex].nextIndex = pickedInds[1];
+				coinsList[pickedInds[0]].lastIndex = coinsList[pickedInds[1]].lastIndex;
+				pickedCnt = 0;
+			}
+		}
+		
+		swap(cur, next);
+	}
+
+	int selectedCount[257];
+	memset(selectedCount, 0, sizeof(selectedCount));
+
+	for (int i = 0; i < 256; i++)
+	{
+		int curInd = prevRoundList[cur][i];
+		while (curInd != -1)
+		{
+			CoinsList &cl = coinsList[curInd];
+			selectedCount[cl.currentElem]++;
+			curInd = cl.nextIndex;
+		}
+	}
+
+	int curH = 0;
+	int maxCode = 0;
+
+	for (int i = 0; i < 16; i++)
+		huffmanPtr->lengthsCount[i] = 0;
+
+	reverse(sortedCodes, sortedCodes + 257);
+	for (int i = 0; i < 256; i++)
+	{
+		int nextH = selectedCount[sortedCodes[i].second];
+		if (sortedCodes[i].first <= 1)
+			break;
+
+		huffmanPtr->lengthsCount[nextH-1]++;
+		huffmanPtr->freqSortedVals[i] = sortedCodes[i].second;
+		while (curH < nextH)
+		{
+			curH++;
+			maxCode *= 2;
+		}
+		huffmanPtr->lengths[sortedCodes[i].second] = nextH;
+		huffmanPtr->codes[sortedCodes[i].second] = maxCode;
+		maxCode++;
 	}
 }
 
@@ -137,6 +660,8 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 		colsPerBlock[ci] = mcuBlockWidth / componentsInfo[ci].horizontalSubsampling;
 	}
 
+	FILE *dumpFile = fopen("dump2.txt", "w");
+
 	for (int bnum = 0; bnum < blocksCount; bnum++)
 	{
 		int curBlockIndex = startBlockIndex + bnum;
@@ -153,7 +678,6 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 			{
 				for (int ci = 0; ci < 3; ci++)
 				{
-					int val = mcuConvertedBuf[posInBuf++];
 					int curY = i + mcuYPixel;
 					int curX = j + mcuXPixel;
 					if (curY >= image->getHeight())
@@ -165,7 +689,15 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 			}
 		}
 
+		for (int i = 0; i < mcuHeight * mcuWidth * 3; i++)
+			fprintf(dumpFile, "%d ", mcuBuf[i]);
+		fprintf(dumpFile, "\n");
+
 		cs->convertImageFromRGB(mcuBuf, mcuConvertedBuf, mcuSize);
+
+		for (int i = 0; i < mcuHeight * mcuWidth * 3; i++)
+			fprintf(dumpFile, "%d ", mcuConvertedBuf[i]);
+		fprintf(dumpFile, "\n");
 		int posInMCUBuf = 0;
 
 		//Subsampling
@@ -180,7 +712,7 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 				int cv = 1 << i;
 				if (cv == avgCnt)
 				{
-					shift = cv;
+					shift = i;
 					break;
 				}
 				else if (cv > avgCnt)
@@ -223,6 +755,10 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 			}
 		}
 
+		for (int i = 0; i < posInMCUBuf; i++)
+			fprintf(dumpFile, "%d ", mcuStartPtr[i]);
+
+		fprintf(dumpFile, "\n");
 		//Subsampling finish
 
 		//DCT and quantization
@@ -236,7 +772,9 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 
 			for (int subblockIdx = 0, subblockIdxEnd = curCompInfo.subBlocksPerBlock(); subblockIdx < subblockIdxEnd; subblockIdx++)
 			{
-				int *block = mcuStartPtr + posInMCUBuf;
+				int *block2 = mcuStartPtr + posInMCUBuf;
+
+				int block[64];
 
 				float srcBuf[8], dstBuf[8];
 				float intermBuf[64];
@@ -245,7 +783,7 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 				{
 					for (int j = 0; j < 8; j++)
 					{
-						srcBuf[j] = (float)block[j*8+i];
+						srcBuf[j] = (float)block2[j*8+i];
 					}
 					perform1DDCT(srcBuf, dstBuf);
 					for (int j = 0; j < 8; j++)
@@ -267,11 +805,35 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 
 				for (int k = 0; k < 64; k++)
 				{
-					block[k] /= quantizationTable[k];
+					fprintf(dumpFile, "%d ", block[k]);
+					if (k%8==7)
+						fprintf(dumpFile, "\n");
+					block[k] = (block[k] + quantizationTable[k] / 2) / quantizationTable[k];
 				}
+
+				for (int k = 0; k < 64; k++)
+					block2[_dezig[k]] = block[k];
 
 				posInMCUBuf += 64;
 			}
 		}
+
+		fprintf(dumpFile, "\n");
+		for (int i = 0; i < posInMCUBuf; i++)
+		{
+			fprintf(dumpFile, "%d ", mcuStartPtr[i]);
+			if (i%8==7)
+				fprintf(dumpFile, "\n");
+		}
+		fprintf(dumpFile, "\n");
+
+		mcuXPixel += mcuWidth;
+		if (mcuXPixel >= width)
+		{
+			mcuXPixel = 0;
+			mcuYPixel += mcuHeight;
+		}
 	}
+
+	fclose(dumpFile);
 }

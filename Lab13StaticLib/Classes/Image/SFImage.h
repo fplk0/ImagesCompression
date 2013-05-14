@@ -14,8 +14,6 @@ class SFImage :
 	DEFAULT_METACLASS_DECLARATION(self, super);
 
 	int *pixels;
-	
-	wstring comment;
 
 	ColorSpace *colorSpace;
 
@@ -26,6 +24,7 @@ class SFImage :
 
 public:
 
+	wstring comment;
 	wstring getComment() { return comment; };
 	void setComment(const wstring &value) { comment = value; };
 

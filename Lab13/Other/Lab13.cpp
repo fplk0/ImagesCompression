@@ -11,12 +11,15 @@
 #include "SFMemoryStreamWriter.h"
 
 #include "SFFileStreamReader.h"
+#include "SFFileStreamWriter.h"
 
 #include "ColorSpaceRGB.h"
 #include "ColorSpaceYCbCr.h"
 
 #include "SFImage.h"
 #include "JPEGCodec.h"
+
+#include "dct.h"
 
 #include <Windows.h>
 
@@ -141,25 +144,61 @@ DWORD __stdcall threadTest(void *param)
 
 void testColorSpace()
 {
-	int vals[3] = {120, 140, 160};
-	int vals2[3];
+	int vals[3] = {255, 231, 255};
+	int vals2[3] = {138, 60, 19}, vals3[3];
 	ColorSpaceYCbCr *sp = ColorSpaceYCbCr::singleton();
 	sp->convertColorFromRGB(vals, vals2);
 	sp->convertColorToRGB(vals2, vals);
 }
 
+void testDct()
+{
+	float src[8], dst[8], src2[8];
+	for (int i = 0; i < 8; i++)
+		src[i] = rand() % 10;
+
+	initDCT();
+
+	perform1DDCT(src, dst);
+	perform1DIDCT(dst, src2);
+
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
+	//testDct();
+	//return 0;
+
+	//testColorSpace();
+	//return 0;
+
 	JPEGCodec *test = JPEGCodec::alloc()->init();
 
-	Sleep(4000);
+	//Sleep(4000);
 
 	clock_t cl = clock();
+	//SFFileStreamReader *reader = SFFileStreamReader::alloc()->initWithFileName(L"Resources/testJpeg.jpg");
 	SFFileStreamReader *reader = SFFileStreamReader::alloc()->initWithFileName(L"Resources/maelstromBig.jpg");
 	test->setSourceStream(reader);
 	test->runDecode();
 
 	printf("%lf\n", (clock() - cl) / (double)CLOCKS_PER_SEC);
+
+	JPEGCodec *encoder = JPEGCodec::alloc()->init();
+	SFFileStreamWriter *writer = SFFileStreamWriter::alloc()->initWithFileName(L"Resources/testJpegEncoded.jpg");
+	encoder->setDestinationStream(writer);
+
+	encoder->setImage(test->getImage());
+
+	for (int i = 0; i < 3; i++)
+	{
+		encoder->setHorizontalSubsamplingForComponent(test->getHorizontalSubsamplingForComponent(i), i);
+		encoder->setVerticalSubsamplingForComponent(test->getVerticalSubsamplingForComponent(i), i);
+	}
+
+	encoder->setEncodeQuality(50);
+
+	encoder->runEncode();
 
 	return 0;
 	int testInt = reader->readIntInline();

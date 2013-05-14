@@ -31,6 +31,7 @@ class JPEGCodec :
 		int horizontalSubsampling;
 		int verticalSubsampling;
 		int quantizationTableID;
+		int huffmanTableDCID, huffmanTableACID;
 		inline int subBlocksPerBlock() { return horizontalSubsampling * verticalSubsampling; };
 		ComponentInfo()
 		{
@@ -89,6 +90,7 @@ class JPEGCodec :
 		HuffmanDecodeInfo() { values = NULL; };
 		~HuffmanDecodeInfo() { delete [] values; };
 	};
+	HuffmanDecodeInfo dcHuffmanDecodeTables[16], acHuffmanDecodeTables[16];
 
 	int *encodedBlocks;
 	int encodeQuality;
@@ -96,10 +98,14 @@ class JPEGCodec :
 	SF_FORCE_INLINE void _readNum(int &to, int len);
 	SF_FORCE_INLINE byte readBit(int &to); //If it finds a marker, it returns it's value, 0 otherwise
 
-	SF_FORCE_INLINE void _writeNum(int &from, int len);
-	SF_FORCE_INLINE void writeBit(int &from);
 
-	HuffmanDecodeInfo dcHuffmanDecodeTables[16], acHuffmanDecodeTables[16];
+	struct HuffmanEncodeInfo
+	{
+		int lengths[256], codes[256];
+		int lengthsCount[16];
+		int freqSortedVals[256];
+	};
+	HuffmanEncodeInfo dcHuffmanEncodeTables[2], acHuffmanEncodeTables[2];
 
 	wstring comment;
 
@@ -124,7 +130,7 @@ public:
 	virtual JPEGCodec* init();
 
 	SFImage* getImage() { return image; };
-	void setImage(SFImage *img) {  }
+	void setImage(SFImage *img) { image->release(); image = img; img->retain(); };
 
 //Encoding
 public:
@@ -147,12 +153,32 @@ private:
 //Decoding
 public:
 	void setHorizontalSubsamplingForComponent(int horizontalSubsampling, int component);
+	void setVerticalSubsamplingForComponent(int verticalSubsampling, int component);
+
 	void setEncodeQuality(int _encodeQuality) { encodeQuality = _encodeQuality;};
 	virtual void runDecode();
 
 private:
+	inline static int lengthOfNum(int num);
+
+	void _writeBit(int bit);
+	void _flushBits();
+	void _writeNum(int num, int len, bool isSigned);
+
+	void _encodeComment();
+	void _encodeSOF0();
+	void _encodeDQT();
+	void _encodeDHT();
+	void _encodeSOS();
 	void _prepareQuantizationMatrix();
 	void _encodeSingleBlock(int startBlockIndex, int blocksCount);
+	void _prepareHuffmanTables();
+	void _buildHuffmanEncodeTable(HuffmanEncodeInfo *huffmanPtr, int *frequencies);
+
+//Other
+public:
+	int getHorizontalSubsamplingForComponent(int component);
+	int getVerticalSubsamplingForComponent(int component);
 
 protected:
 	virtual ~JPEGCodec(void);

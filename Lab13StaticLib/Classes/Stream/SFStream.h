@@ -22,13 +22,13 @@ class SFStream :
 
 protected:
 	byte *buf;
-	size_t bufPos;
 	size_t bitPos;
 	size_t bufSize;
 	bool _opened;
 
 public:
 	
+	size_t bufPos;
 	virtual SFStream* init();
 	virtual SFStream* initWithBufSize(size_t _bufSize = 1<<14);
 	virtual void openStream();
