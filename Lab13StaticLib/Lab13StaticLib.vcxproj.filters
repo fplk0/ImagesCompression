@@ -84,6 +84,12 @@
     <ClCompile Include="Classes\Image\SFImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SFTaskScheduler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SFTask.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Classes\Codecs\JPEGCodec\JPEGCodec.h">
@@ -153,6 +159,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Classes\Image\SFImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SFTaskScheduler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SFTask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

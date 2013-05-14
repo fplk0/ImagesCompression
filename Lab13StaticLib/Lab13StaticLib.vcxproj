@@ -163,6 +163,8 @@
     <ClCompile Include="Classes\Stream\Writer\SFMemoryStreamWriter.cpp" />
     <ClCompile Include="Classes\Stream\Writer\SFStreamWriter.cpp" />
     <ClCompile Include="Other\stdafx.cpp" />
+    <ClCompile Include="SFTask.cpp" />
+    <ClCompile Include="SFTaskScheduler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Classes\Codecs\GenericCodec.h" />
@@ -188,6 +190,8 @@
     <ClInclude Include="Other\PlatformSpecific.h" />
     <ClInclude Include="Other\stdafx.h" />
     <ClInclude Include="Other\targetver.h" />
+    <ClInclude Include="SFTask.h" />
+    <ClInclude Include="SFTaskScheduler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
