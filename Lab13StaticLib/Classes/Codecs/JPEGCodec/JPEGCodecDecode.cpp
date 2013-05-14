@@ -483,8 +483,8 @@ void JPEGCodec::_decodeSOS()
 
 static int zeroBlock[64] = { 0 };
 
-#define __fprintf(file, format, ...) fprintf(file, format, __VA_ARGS__)
-//#define __fprintf(file, format, ...)
+//#define __fprintf(file, format, ...) fprintf(file, format, __VA_ARGS__)
+#define __fprintf(file, format, ...)
 
 void JPEGCodec::_decodeSingleBlock(CurrentDecodeBlockInfo *blockAddr)
 {

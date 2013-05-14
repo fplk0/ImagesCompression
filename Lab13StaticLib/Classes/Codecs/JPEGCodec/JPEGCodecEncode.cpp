@@ -388,6 +388,9 @@ void JPEGCodec::_writeNum(int num, int len, bool isSigned)
 	}
 }
 
+#define __fprintf(file, str, ...) 
+//#define __fprintf(file, str, ...)  fprintf(file, str, __VA_ARGS__)
+
 void JPEGCodec::_encodeSOS()
 {
 	writer->writeByte(0xFF);
@@ -433,7 +436,7 @@ void JPEGCodec::_encodeSOS()
 
 			for (int i = 0, iEnd = componentsInfo[ci].subBlocksPerBlock(); i < iEnd; i++)
 			{
-				fprintf(dumpFile, "%X.%d\n", writer->bufPos, curBitPos);
+				__fprintf(dumpFile, "%X.%d\n", writer->bufPos, curBitPos);
 
 				int nextDCVal = encodedBlocks[posInBlock];
 				int dcValDiff = nextDCVal - dcPredictors[ci];
@@ -458,20 +461,20 @@ void JPEGCodec::_encodeSOS()
 						code = acHuff.codes[curByte];
 						codeLen = acHuff.lengths[curByte];
 
-						fprintf(dumpFile, "Z%X.%d\n", writer->bufPos, curBitPos);
+						__fprintf(dumpFile, "Z%X.%d\n", writer->bufPos, curBitPos);
 
 						_writeNum(code, codeLen, 0);
 					}
 					else
 					{
-						while (zeroCount > 15)
+						while (zeroCount >= 16)
 						{
-							zeroCount -= 15;
+							zeroCount -= 16;
 							curByte = 0xF0;
 							code = acHuff.codes[curByte];
 							codeLen = acHuff.lengths[curByte];
 
-							fprintf(dumpFile, "%X.%d\n", writer->bufPos, curBitPos);
+							__fprintf(dumpFile, "%X.%d\n", writer->bufPos, curBitPos);
 
 							_writeNum(code, codeLen, 0);
 						}
@@ -483,14 +486,14 @@ void JPEGCodec::_encodeSOS()
 						code = acHuff.codes[curByte];
 						codeLen = acHuff.lengths[curByte];
 
-						fprintf(dumpFile, "%X.%d\n", writer->bufPos, curBitPos);
+						__fprintf(dumpFile, "%X.%d\n", writer->bufPos, curBitPos);
 
 						_writeNum(code, codeLen, 0);
 						_writeNum(encodedBlocks[posInBlock + j], numLen, 1);
 					}
 				}
 
-				fprintf(dumpFile, "\n\n", writer->bufPos, curBitPos);
+				__fprintf(dumpFile, "\n\n", writer->bufPos, curBitPos);
 				posInBlock += 64;
 			}
 		}
@@ -633,8 +636,10 @@ void JPEGCodec::_buildHuffmanEncodeTable(HuffmanEncodeInfo *huffmanPtr, int *fre
 void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 {
 	int mcuYPixel = startBlockIndex / mcusPerRow;
+	mcuYPixel *= mcuHeight;
 	int mcuXPixel = startBlockIndex % mcusPerRow;
-	
+	mcuXPixel *= mcuWidth;
+
 	const int maxMCUSize = 16;
 
 	int _mcuBuf[3 * maxMCUSize * 64];
@@ -690,14 +695,14 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 		}
 
 		for (int i = 0; i < mcuHeight * mcuWidth * 3; i++)
-			fprintf(dumpFile, "%d ", mcuBuf[i]);
-		fprintf(dumpFile, "\n");
+			__fprintf(dumpFile, "%d ", mcuBuf[i]);
+		__fprintf(dumpFile, "\n");
 
 		cs->convertImageFromRGB(mcuBuf, mcuConvertedBuf, mcuSize);
 
 		for (int i = 0; i < mcuHeight * mcuWidth * 3; i++)
-			fprintf(dumpFile, "%d ", mcuConvertedBuf[i]);
-		fprintf(dumpFile, "\n");
+			__fprintf(dumpFile, "%d ", mcuConvertedBuf[i]);
+		__fprintf(dumpFile, "\n");
 		int posInMCUBuf = 0;
 
 		//Subsampling
@@ -756,9 +761,9 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 		}
 
 		for (int i = 0; i < posInMCUBuf; i++)
-			fprintf(dumpFile, "%d ", mcuStartPtr[i]);
+			__fprintf(dumpFile, "%d ", mcuStartPtr[i]);
 
-		fprintf(dumpFile, "\n");
+		__fprintf(dumpFile, "\n");
 		//Subsampling finish
 
 		//DCT and quantization
@@ -805,9 +810,9 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 
 				for (int k = 0; k < 64; k++)
 				{
-					fprintf(dumpFile, "%d ", block[k]);
+					__fprintf(dumpFile, "%d ", block[k]);
 					if (k%8==7)
-						fprintf(dumpFile, "\n");
+						__fprintf(dumpFile, "\n");
 					block[k] = (block[k] + quantizationTable[k] / 2) / quantizationTable[k];
 				}
 
@@ -818,14 +823,14 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 			}
 		}
 
-		fprintf(dumpFile, "\n");
+		__fprintf(dumpFile, "\n");
 		for (int i = 0; i < posInMCUBuf; i++)
 		{
-			fprintf(dumpFile, "%d ", mcuStartPtr[i]);
+			__fprintf(dumpFile, "%d ", mcuStartPtr[i]);
 			if (i%8==7)
-				fprintf(dumpFile, "\n");
+				__fprintf(dumpFile, "\n");
 		}
-		fprintf(dumpFile, "\n");
+		__fprintf(dumpFile, "\n");
 
 		mcuXPixel += mcuWidth;
 		if (mcuXPixel >= width)

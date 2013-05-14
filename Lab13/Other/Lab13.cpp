@@ -196,7 +196,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		encoder->setVerticalSubsamplingForComponent(test->getVerticalSubsamplingForComponent(i), i);
 	}
 
-	encoder->setEncodeQuality(50);
+	encoder->setEncodeQuality(100);
 
 	encoder->runEncode();
 
