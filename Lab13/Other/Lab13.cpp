@@ -172,33 +172,76 @@ int _tmain(int argc, _TCHAR* argv[])
 	//testColorSpace();
 	//return 0;
 
-	JPEGCodec *test = JPEGCodec::alloc()->init();
+	JPEGCodec *test;
 
 	//Sleep(4000);
 
-	clock_t cl = clock();
-	//SFFileStreamReader *reader = SFFileStreamReader::alloc()->initWithFileName(L"Resources/testJpeg.jpg");
-	SFFileStreamReader *reader = SFFileStreamReader::alloc()->initWithFileName(L"Resources/maelstromBig.jpg");
-	test->setSourceStream(reader);
-	test->runDecode();
+	clock_t cl;
+	SFFileStreamReader *reader;
+	SFImage *img = NULL;
 
-	printf("%lf\n", (clock() - cl) / (double)CLOCKS_PER_SEC);
+	clock_t totalEncode = 0, totalDecode = 0;
 
-	JPEGCodec *encoder = JPEGCodec::alloc()->init();
-	SFFileStreamWriter *writer = SFFileStreamWriter::alloc()->initWithFileName(L"Resources/testJpegEncoded.jpg");
-	encoder->setDestinationStream(writer);
-
-	encoder->setImage(test->getImage());
-
-	for (int i = 0; i < 3; i++)
+	for (int i = 0, iMax = 100; i < iMax; i++)
 	{
-		encoder->setHorizontalSubsamplingForComponent(test->getHorizontalSubsamplingForComponent(i), i);
-		encoder->setVerticalSubsamplingForComponent(test->getVerticalSubsamplingForComponent(i), i);
+		//SFFileStreamReader *reader = SFFileStreamReader::alloc()->initWithFileName(L"Resources/testJpeg.jpg");
+		test = JPEGCodec::alloc()->init();
+		reader = SFFileStreamReader::alloc()->initWithFileName(L"Resources/maelstromBig.jpg");
+		test->setSourceStream(reader);
+		cl = clock();
+		test->runDecode();
+
+		if (i == iMax - 1)
+		{
+			img = test->getImage();
+			img->retain();
+		}
+		test->release();
+		reader->release();
+		totalDecode += clock() - cl;
+		printf("%lf\n", (clock() - cl) / (double)CLOCKS_PER_SEC);
 	}
 
-	encoder->setEncodeQuality(100);
+	for (int i = 0, iMax = 100; i < iMax; i++)
+	{
+		JPEGCodec *encoder = JPEGCodec::alloc()->init();
+		//SFFileStreamWriter *writer = SFFileStreamWriter::alloc()->initWithFileName(L"Resources/testJpegEncoded.jpg");
+		SFMemoryStreamWriter *writer = SFMemoryStreamWriter::alloc()->initDynamic();
+		encoder->setDestinationStream(writer);
 
-	encoder->runEncode();
+		encoder->setImage(img);
+
+		for (int i = 0; i < 3; i++)
+		{
+			encoder->setHorizontalSubsamplingForComponent(test->getHorizontalSubsamplingForComponent(i), i);
+			encoder->setVerticalSubsamplingForComponent(test->getVerticalSubsamplingForComponent(i), i);
+		}
+
+		encoder->setHorizontalSubsamplingForComponent(2, 0);
+		encoder->setVerticalSubsamplingForComponent(2, 0);
+
+		encoder->setHorizontalSubsamplingForComponent(1, 1);
+		encoder->setVerticalSubsamplingForComponent(1, 1);
+
+		encoder->setHorizontalSubsamplingForComponent(1, 2);
+		encoder->setVerticalSubsamplingForComponent(1, 2);
+
+		encoder->setEncodeQuality(90);
+
+		cl = clock();
+
+		encoder->runEncode();
+
+		encoder->release();
+		writer->release();
+
+		totalEncode += clock() - cl;
+
+		printf("%lf\n", (clock() - cl) / (double)CLOCKS_PER_SEC);
+	}
+
+	printf("Total encode: %lf\n", totalEncode / (double)CLOCKS_PER_SEC);
+	printf("Total decode: %lf\n", totalDecode / (double)CLOCKS_PER_SEC);
 
 	return 0;
 	int testInt = reader->readIntInline();

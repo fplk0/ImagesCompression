@@ -2,11 +2,11 @@
 
 #pragma once
 
-using namespace System;
-
 #include "JPEGCodec.h"
 #include "SFFileStreamReader.h"
 #include "SFImage.h"
+
+using namespace System;
 
 namespace CLRWrapper 
 {
