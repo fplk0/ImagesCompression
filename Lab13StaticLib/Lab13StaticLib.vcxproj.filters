@@ -84,10 +84,10 @@
     <ClCompile Include="Classes\Image\SFImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SFTaskScheduler.cpp">
+    <ClCompile Include="Classes\Multithreading\SFTask.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SFTask.cpp">
+    <ClCompile Include="Classes\Multithreading\SFTaskScheduler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -161,10 +161,10 @@
     <ClInclude Include="Classes\Image\SFImage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SFTaskScheduler.h">
+    <ClInclude Include="Classes\Multithreading\SFTask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SFTask.h">
+    <ClInclude Include="Classes\Multithreading\SFTaskScheduler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

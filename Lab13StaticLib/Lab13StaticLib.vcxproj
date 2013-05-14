@@ -152,6 +152,8 @@
     <ClCompile Include="Classes\ColorSpaces\ColorSpaceRGB.cpp" />
     <ClCompile Include="Classes\ColorSpaces\ColorSpaceYCbCr.cpp" />
     <ClCompile Include="Classes\Image\SFImage.cpp" />
+    <ClCompile Include="Classes\Multithreading\SFTask.cpp" />
+    <ClCompile Include="Classes\Multithreading\SFTaskScheduler.cpp" />
     <ClCompile Include="Classes\Object\SFObject.cpp" />
     <ClCompile Include="Classes\Other\dct.cpp" />
     <ClCompile Include="Classes\Other\SFData.cpp" />
@@ -163,8 +165,6 @@
     <ClCompile Include="Classes\Stream\Writer\SFMemoryStreamWriter.cpp" />
     <ClCompile Include="Classes\Stream\Writer\SFStreamWriter.cpp" />
     <ClCompile Include="Other\stdafx.cpp" />
-    <ClCompile Include="SFTask.cpp" />
-    <ClCompile Include="SFTaskScheduler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Classes\Codecs\GenericCodec.h" />
@@ -176,6 +176,8 @@
     <ClInclude Include="Classes\ColorSpaces\ColorSpaceRGB.h" />
     <ClInclude Include="Classes\ColorSpaces\ColorSpaceYCbCr.h" />
     <ClInclude Include="Classes\Image\SFImage.h" />
+    <ClInclude Include="Classes\Multithreading\SFTask.h" />
+    <ClInclude Include="Classes\Multithreading\SFTaskScheduler.h" />
     <ClInclude Include="Classes\Object\Atomic.h" />
     <ClInclude Include="Classes\Object\SFObject.h" />
     <ClInclude Include="Classes\Other\dct.h" />
@@ -190,8 +192,6 @@
     <ClInclude Include="Other\PlatformSpecific.h" />
     <ClInclude Include="Other\stdafx.h" />
     <ClInclude Include="Other\targetver.h" />
-    <ClInclude Include="SFTask.h" />
-    <ClInclude Include="SFTaskScheduler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
