@@ -41,7 +41,8 @@ void SFStream::closeStream()
 
 void SFStream::free()
 {
-	this->closeStream();
+	if (_opened)
+		this->closeStream();
 
 	super::free();
 }
