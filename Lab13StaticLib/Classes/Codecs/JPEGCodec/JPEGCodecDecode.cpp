@@ -41,7 +41,6 @@ void JPEGCodec::runDecode()
 
 		reader->readByte(nextByte);
 
-		int sectionSize;
 		switch (nextByte)
 		{
 		case JPEGSectionSOI:
@@ -587,7 +586,7 @@ void JPEGCodec::_decodeSingleBlockThreaded(CurrentDecodeBlockInfo *blockAddr)
 					}
 					perform1DIDCT(srcBuf, dstBuf);
 					for (int i = 0; i < 8; i++)
-						block[j*8+i] = dstBuf[i];
+						block[j*8+i] = (int)dstBuf[i];
 				}
 
 				smallBlockStart += 64;
@@ -602,8 +601,6 @@ void JPEGCodec::_decodeSingleBlockThreaded(CurrentDecodeBlockInfo *blockAddr)
 
 		int mcuWidthInPixels = mcuBlockWidth * 8;
 		int mcuHeightInPixels = mcuBlockHeight * 8;
-
-		int *currentSubBlocksStart[16];
 
 		ColorSpaceYCbCr *cs = ColorSpaceYCbCr::singleton();
 

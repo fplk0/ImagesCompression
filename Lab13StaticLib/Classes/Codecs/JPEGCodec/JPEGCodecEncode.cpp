@@ -151,13 +151,13 @@ void JPEGCodec::_prepareQuantizationMatrix()
 
 	for (int i = 0; i < 64; i++)
 	{
-		quantizationTables[0][i] = (int)defaultQuantizationTable[0][i] * mulCoef;
+		quantizationTables[0][i] = (int)(defaultQuantizationTable[0][i] * mulCoef);
 		if (quantizationTables[0][i] < 1)
 			quantizationTables[0][i] = 1;
 		if (quantizationTables[0][i] > 255)
 			quantizationTables[0][i] = 255;
 
-		quantizationTables[1][i] = (int)defaultQuantizationTable[1][i] * mulCoef;
+		quantizationTables[1][i] = (int)(defaultQuantizationTable[1][i] * mulCoef);
 
 		if (quantizationTables[1][i] < 1)
 			quantizationTables[1][i] = 1;
@@ -182,7 +182,7 @@ int JPEGCodec::lengthOfNum(int num)
 
 void JPEGCodec::_encodeComment()
 {
-	int commentLength = image->comment.length();
+	int commentLength = (int)image->comment.length();
 
 	if (commentLength == 0)
 		return;
@@ -591,10 +591,10 @@ void JPEGCodec::_buildHuffmanEncodeTable(HuffmanEncodeInfo *huffmanPtr, int *fre
 
 		while (total > 0)
 		{
-			int smallestCurVal = 1e9;
+			int smallestCurVal = (int)1e9;
 			if (curPtr < 257)
 				smallestCurVal = sortedCodes[curPtr].first;
-			int smallestPrevVal = 1e9;
+			int smallestPrevVal = (int)1e9;
 			int prevRoundInd;
 			if (prevPtr < prevRoundLength[cur])
 			{
@@ -841,7 +841,7 @@ void JPEGCodec::_encodeSingleBlockThreaded(int startBlockIndex, int blocksCount)
 					}
 					perform1DDCT(srcBuf, dstBuf);
 					for (int i = 0; i < 8; i++)
-						block[j*8+i] = dstBuf[i];
+						block[j*8+i] = (int)dstBuf[i];
 				}
 
 				for (int k = 0; k < 64; k++)

@@ -31,7 +31,7 @@ using namespace std;
 void testMemory()
 {
 	char testData[] = "8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888812345112233445556";
-	int testLen = strlen(testData);
+	int testLen = (int)strlen(testData);
 	SFData *td = SFData::alloc()->initWithData((byte*)testData, testLen, 0);
 
 	GenericCodec::GenericCodecMetaClass *meta;// = &GenericCodec::metaObject;

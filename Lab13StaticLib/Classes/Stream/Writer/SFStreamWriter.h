@@ -102,10 +102,10 @@ int SFStreamWriter::writeBits(int num, size_t bitsCt)
 			buf[bufPos] = 0;
 
 		size_t bitsLeft = 8 - bitPos;
-		int bitsToWrite = min(bitsLeft, bitsCt);
-		int shift = bitsCt - bitsToWrite;
+		int bitsToWrite = (int)min(bitsLeft, bitsCt);
+		int shift = (int)(bitsCt - bitsToWrite);
 		int mask = (1 << bitsToWrite) - 1;
-		int leftShift = bitsLeft - bitsToWrite;
+		int leftShift = (int)(bitsLeft - bitsToWrite);
 		int tmp = (num >> shift) & mask;
 		tmp <<= leftShift;
 

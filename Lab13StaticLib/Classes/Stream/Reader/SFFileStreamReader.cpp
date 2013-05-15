@@ -45,7 +45,7 @@ size_t SFFileStreamReader::streamSize()
 {
 	if (file == NULL)
 		return 0;
-	size_t curPos = ftell(file);
+	long curPos = ftell(file);
 	fseek(file, 0, SEEK_END);
 	size_t endPos = ftell(file);
 	fseek(file, curPos, SEEK_SET);

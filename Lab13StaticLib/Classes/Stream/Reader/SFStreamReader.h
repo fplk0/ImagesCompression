@@ -81,7 +81,7 @@ public:
 
 bool SFStreamReader::atEnd(bool skipBits)
 {
-	int cp = bufPos;
+	int cp = (int)bufPos;
 	if (skipBits && bitPos > 0)
 		cp++;
 	if (cp == bytesRead && this->_atEnd())
@@ -115,7 +115,7 @@ byte SFStreamReader::nextByte()
 		}
 		else
 		{
-			_shiftLeft(max(bufSize / 16, 1u));
+			_shiftLeft(max(bufSize / 16, (size_t)1u));
 		}
 		curPos = bufPos + ((bitPos == 0) ? 0 : 1);
 	}
@@ -207,9 +207,9 @@ size_t SFStreamReader::readBits(int &num, size_t bitsCt)
 		if (_shouldReadNext() && readNext(0) < 0)
 			break;
 		size_t bitsLeft = 8 - bitPos;
-		int bitsToRead = min(bitsLeft, bitsCt);
+		int bitsToRead = (int)min(bitsLeft, bitsCt);
 		int mask = (1 << bitsToRead) - 1;
-		int sh1 = bitsLeft - bitsToRead;
+		int sh1 = (int)bitsLeft - bitsToRead;
 		int tmp = (buf[bufPos] >> sh1) & mask;
 		tmp <<= bitsCt - bitsToRead;
 		num |= tmp;
@@ -234,7 +234,7 @@ size_t SFStreamReader::readBits(int &num, size_t bitsCt)
 
 bool SFStreamReader::atEndInline(bool skipBits)
 {
-	int cp = bufPos;
+	int cp = (int)bufPos;
 	if (skipBits && bitPos > 0)
 		cp++;
 	if (cp == bytesRead && this->_atEnd())
@@ -268,7 +268,7 @@ byte SFStreamReader::nextByteInline()
 		}
 		else
 		{
-			_shiftLeft(max(bufSize / 16, 1u));
+			_shiftLeft(max(bufSize / 16, (size_t)1u));
 		}
 		curPos = bufPos + ((bitPos == 0) ? 0 : 1);
 	}
@@ -360,9 +360,9 @@ size_t SFStreamReader::readBitsInline(int &num, size_t bitsCt)
 		if (_shouldReadNext() && readNext(0) < 0)
 			break;
 		size_t bitsLeft = 8 - bitPos;
-		int bitsToRead = min(bitsLeft, bitsCt);
+		int bitsToRead = (int)min(bitsLeft, bitsCt);
 		int mask = (1 << bitsToRead) - 1;
-		int sh1 = bitsLeft - bitsToRead;
+		int sh1 = (int)(bitsLeft - bitsToRead);
 		int tmp = (buf[bufPos] >> sh1) & mask;
 		tmp <<= bitsCt - bitsToRead;
 		num |= tmp;

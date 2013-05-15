@@ -64,6 +64,7 @@ namespace Lab1
             this.controlsChanged();
         }
 
+        ConvertImageForm convertForm;
         System.Drawing.Image originalImage;
         System.Drawing.Image modifiedImage;
         Image myModifiedImage;
@@ -234,6 +235,8 @@ namespace Lab1
             Func<int> handler = () =>
             {
                 myModifiedImage = resultImage;
+                if (convertForm != null)
+                    convertForm.imageToConvert = myModifiedImage;
                 modifiedImage = bmp;
                 modifiedImageBox.Image = modifiedImage;
                 if (fiForm != null)
@@ -376,10 +379,10 @@ namespace Lab1
 
         private void saveImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ConvertImageForm form = new ConvertImageForm();
-            form.imageToConvert = myModifiedImage;
+            convertForm = new ConvertImageForm();
+            convertForm.imageToConvert = myModifiedImage;
 
-            form.Show();
+            convertForm.Show();
         }
     }
 }
