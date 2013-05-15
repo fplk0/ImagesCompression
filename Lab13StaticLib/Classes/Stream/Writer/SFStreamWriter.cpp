@@ -24,6 +24,7 @@ int SFStreamWriter::_flushStreamIfNeeded(bool flushBits, bool forceFlush)
 	if (bufPos == bufSize || forceFlush)
 	{
 		size_t writtenBytes = _writeToStream(buf, bufPos);
+		totalBytesWritten += writtenBytes;
 		//assert(writtenBytes == bufPos);
 		if (forceFlush && !flushBits && bitPos != 0)
 		{
@@ -37,6 +38,12 @@ int SFStreamWriter::_flushStreamIfNeeded(bool flushBits, bool forceFlush)
 int SFStreamWriter::flushStream(bool flushBits)
 {
 	return this->_flushStreamIfNeeded(flushBits, true);
+}
+
+void SFStreamWriter::openStream()
+{
+	super::openStream();
+	totalBytesWritten = 0;
 }
 
 void SFStreamWriter::closeStream()

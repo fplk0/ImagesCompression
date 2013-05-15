@@ -55,6 +55,7 @@ int JPEGCodec::getVerticalSubsamplingForComponent(int component)
 
 void JPEGCodec::runEncode()
 {
+	initDCT();
 	_prepareQuantizationMatrix();
 	componentsCount = 3;
 	taskScheduler = SFTaskScheduler::singleInstance();
@@ -330,9 +331,9 @@ void JPEGCodec::_prepareHuffmanTables()
 						acFreqs[curInd][curByte]++;
 					else
 					{
-						while (zeroCount > 15)
+						while (zeroCount >= 16)
 						{
-							zeroCount -= 15;
+							zeroCount -= 16;
 							curByte = 0xF0;
 							acFreqs[curInd][curByte]++;
 						}
@@ -399,11 +400,32 @@ void JPEGCodec::_writeNum(int num, int len, bool isSigned)
 	}
 }
 
-#define __fprintf(file, str, ...) 
+//#define __fprintf(file, str, ...) 
 //#define __fprintf(file, str, ...)  fprintf(file, str, __VA_ARGS__)
+
+FILE *dumpFile;
+
+#ifdef JPEG_DEBUG
+
+#define MY_FOPEN fopen
+#define MY_FCLOSE fclose
+#define condLog(cond, format, ...) \
+	if ((cond)) \
+{\
+	fprintf(dumpFile, format, __VA_ARGS__); \
+}
+
+#else
+
+#define MY_FOPEN NULL;
+#define MY_FCLOSE
+#define condLog(cond, format, ...) 
+
+#endif
 
 void JPEGCodec::_encodeSOS()
 {
+	dumpFile = MY_FOPEN("offsetDump.txt", "w");
 	writer->writeByte(0xFF);
 	writer->writeByte(JPEGSectionSOS);
 
@@ -432,8 +454,13 @@ void JPEGCodec::_encodeSOS()
 	int dcPredictors[3];
 	memset(dcPredictors, 0, sizeof(dcPredictors));
 
+	int logStartVal = 240*21 + 214;
+
 	for (int cmcu = 0; cmcu < totalMCUs; cmcu++)
 	{
+		bool needsLog = (cmcu >= logStartVal)  && (cmcu <= logStartVal + 20);
+		if (needsLog)
+			condLog(needsLog, "LogStart\n\n");
 		for (int ci = 0; ci < 3; ci++)
 		{
 			int curInd = 0;
@@ -453,6 +480,9 @@ void JPEGCodec::_encodeSOS()
 				
 				int code = dcHuff.codes[numLen];
 				int codeLen = dcHuff.lengths[numLen];
+
+				condLog(needsLog, "%X.%d\n", writer->bufPos + writer->totalBytesWritten, curBitPos);
+
 				_writeNum(code, codeLen, 0);
 				_writeNum(dcValDiff, numLen, 1);
 
@@ -468,6 +498,7 @@ void JPEGCodec::_encodeSOS()
 						code = acHuff.codes[curByte];
 						codeLen = acHuff.lengths[curByte];
 
+						condLog(needsLog, "%X.%d\n", writer->bufPos + writer->totalBytesWritten, curBitPos);
 						_writeNum(code, codeLen, 0);
 					}
 					else
@@ -479,6 +510,7 @@ void JPEGCodec::_encodeSOS()
 							code = acHuff.codes[curByte];
 							codeLen = acHuff.lengths[curByte];
 
+							condLog(needsLog, "%X.%d\n", writer->bufPos + writer->totalBytesWritten, curBitPos);
 							_writeNum(code, codeLen, 0);
 						}
 						curByte = zeroCount << 4;
@@ -489,10 +521,13 @@ void JPEGCodec::_encodeSOS()
 						code = acHuff.codes[curByte];
 						codeLen = acHuff.lengths[curByte];
 
+						condLog(needsLog, "%X.%d\n", writer->bufPos + writer->totalBytesWritten, curBitPos);
 						_writeNum(code, codeLen, 0);
 						_writeNum(encodedBlocks[posInBlock + j], numLen, 1);
 					}
 				}
+
+				condLog(needsLog, "\n\n");
 
 				posInBlock += 64;
 			}
@@ -500,6 +535,8 @@ void JPEGCodec::_encodeSOS()
 	}
 
 	_flushBits();
+
+	MY_FCLOSE(dumpFile);
 
 	writer->writeByte(0xFF);
 	writer->writeByte(JPEGSectionEOI);
@@ -641,6 +678,8 @@ void JPEGCodec::_encodeSingleBlock(int startBlockIndex, int blocksCount)
 	this->retain();
 	taskScheduler->addTask(encodeTask, taskIndex);
 	encodeTask->release();
+
+	//_encodeSingleBlockThreaded(startBlockIndex, blocksCount);
 }
 
 void JPEGCodec::_encodeSingleBlockThreaded(int startBlockIndex, int blocksCount)

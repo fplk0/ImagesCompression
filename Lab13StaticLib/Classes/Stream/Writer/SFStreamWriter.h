@@ -18,6 +18,7 @@ class SFStreamWriter :
 	virtual size_t _writeToStream(byte *buf, size_t byteCnt) = 0;
 
 public:
+	int totalBytesWritten;
 
 	virtual SFStreamWriter* init();
 	int flushStream(bool flushBits = 1);
@@ -29,6 +30,7 @@ public:
 	inline int writeLL(unsigned long long val);
 	inline int writeBits(int num, size_t bitsCt);
 
+	virtual void openStream();
 	virtual void closeStream();
 
 	virtual ~SFStreamWriter(void);
