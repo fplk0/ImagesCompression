@@ -29,16 +29,19 @@
         private void InitializeComponent()
         {
             this.statGridView = new System.Windows.Forms.DataGridView();
-            this.pathTextBox = new System.Windows.Forms.TextBox();
-            this.selectFolderButton = new System.Windows.Forms.Button();
-            this.runButton = new System.Windows.Forms.Button();
             this.qualityImageName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.compressionTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.decompressionTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.symmetry = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.compressionRatio = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.psnr = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.pathTextBox = new System.Windows.Forms.TextBox();
+            this.selectFolderButton = new System.Windows.Forms.Button();
+            this.runButton = new System.Windows.Forms.Button();
+            this.maxConcurrency = new System.Windows.Forms.NumericUpDown();
+            this.testsRunTimeLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.statGridView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.maxConcurrency)).BeginInit();
             this.SuspendLayout();
             // 
             // statGridView
@@ -59,34 +62,6 @@
             this.statGridView.RowHeadersVisible = false;
             this.statGridView.Size = new System.Drawing.Size(808, 403);
             this.statGridView.TabIndex = 0;
-            // 
-            // pathTextBox
-            // 
-            this.pathTextBox.Location = new System.Drawing.Point(12, 12);
-            this.pathTextBox.Name = "pathTextBox";
-            this.pathTextBox.Size = new System.Drawing.Size(456, 20);
-            this.pathTextBox.TabIndex = 1;
-            this.pathTextBox.Text = "D:\\TestImages";
-            // 
-            // selectFolderButton
-            // 
-            this.selectFolderButton.Location = new System.Drawing.Point(474, 10);
-            this.selectFolderButton.Name = "selectFolderButton";
-            this.selectFolderButton.Size = new System.Drawing.Size(75, 23);
-            this.selectFolderButton.TabIndex = 2;
-            this.selectFolderButton.Text = "Select folder";
-            this.selectFolderButton.UseVisualStyleBackColor = true;
-            this.selectFolderButton.Click += new System.EventHandler(this.selectFolderButton_Click);
-            // 
-            // runButton
-            // 
-            this.runButton.Location = new System.Drawing.Point(555, 9);
-            this.runButton.Name = "runButton";
-            this.runButton.Size = new System.Drawing.Size(75, 23);
-            this.runButton.TabIndex = 3;
-            this.runButton.Text = "Run";
-            this.runButton.UseVisualStyleBackColor = true;
-            this.runButton.Click += new System.EventHandler(this.runButton_Click);
             // 
             // qualityImageName
             // 
@@ -136,11 +111,61 @@
             this.psnr.ReadOnly = true;
             this.psnr.Width = 62;
             // 
+            // pathTextBox
+            // 
+            this.pathTextBox.Location = new System.Drawing.Point(12, 12);
+            this.pathTextBox.Name = "pathTextBox";
+            this.pathTextBox.Size = new System.Drawing.Size(456, 20);
+            this.pathTextBox.TabIndex = 1;
+            this.pathTextBox.Text = "D:\\TestImages";
+            // 
+            // selectFolderButton
+            // 
+            this.selectFolderButton.Location = new System.Drawing.Point(474, 10);
+            this.selectFolderButton.Name = "selectFolderButton";
+            this.selectFolderButton.Size = new System.Drawing.Size(75, 23);
+            this.selectFolderButton.TabIndex = 2;
+            this.selectFolderButton.Text = "Select folder";
+            this.selectFolderButton.UseVisualStyleBackColor = true;
+            this.selectFolderButton.Click += new System.EventHandler(this.selectFolderButton_Click);
+            // 
+            // runButton
+            // 
+            this.runButton.Location = new System.Drawing.Point(555, 9);
+            this.runButton.Name = "runButton";
+            this.runButton.Size = new System.Drawing.Size(75, 23);
+            this.runButton.TabIndex = 3;
+            this.runButton.Text = "Run";
+            this.runButton.UseVisualStyleBackColor = true;
+            this.runButton.Click += new System.EventHandler(this.runButton_Click);
+            // 
+            // maxConcurrency
+            // 
+            this.maxConcurrency.Location = new System.Drawing.Point(636, 12);
+            this.maxConcurrency.Name = "maxConcurrency";
+            this.maxConcurrency.Size = new System.Drawing.Size(46, 20);
+            this.maxConcurrency.TabIndex = 4;
+            this.maxConcurrency.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // testsRunTimeLabel
+            // 
+            this.testsRunTimeLabel.AutoSize = true;
+            this.testsRunTimeLabel.Location = new System.Drawing.Point(688, 15);
+            this.testsRunTimeLabel.Name = "testsRunTimeLabel";
+            this.testsRunTimeLabel.Size = new System.Drawing.Size(0, 13);
+            this.testsRunTimeLabel.TabIndex = 5;
+            // 
             // StatisticsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(832, 462);
+            this.Controls.Add(this.testsRunTimeLabel);
+            this.Controls.Add(this.maxConcurrency);
             this.Controls.Add(this.runButton);
             this.Controls.Add(this.selectFolderButton);
             this.Controls.Add(this.pathTextBox);
@@ -148,6 +173,7 @@
             this.Name = "StatisticsForm";
             this.Text = "StatisticsForm";
             ((System.ComponentModel.ISupportInitialize)(this.statGridView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.maxConcurrency)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -165,5 +191,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn symmetry;
         private System.Windows.Forms.DataGridViewTextBoxColumn compressionRatio;
         private System.Windows.Forms.DataGridViewTextBoxColumn psnr;
+        private System.Windows.Forms.NumericUpDown maxConcurrency;
+        private System.Windows.Forms.Label testsRunTimeLabel;
     }
 }

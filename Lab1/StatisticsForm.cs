@@ -66,7 +66,15 @@ namespace Lab1
 
             statGridView.Rows.Clear();
 
-            for (int si = 0; si < jpegSettings.Count; si++)
+            string[ , , ] tableValues = new string[jpegSettings.Count, imagesList.Count + 3, 6];
+
+            ParallelOptions opts = new ParallelOptions();
+            opts.MaxDegreeOfParallelism = Convert.ToInt32(maxConcurrency.Value);
+
+            Stopwatch totalStopWatch = new Stopwatch();
+            totalStopWatch.Start();
+
+            Parallel.For(0, jpegSettings.Count, opts, si =>
             {
                 JPEGSettings curSettings = (JPEGSettings)jpegSettings[si];
 
@@ -80,8 +88,6 @@ namespace Lab1
                     avgValues = { 0, 0, 0, 0, 0 };
 
                 string settingsString = jpegSettingsToString(curSettings);
-                int curRowIndex = statGridView.Rows.Add();
-                statGridView.Rows[curRowIndex].Cells[0].Value = settingsString;
 
                 string subfolderPath = folderPath + "/" + settingsString;
 
@@ -111,7 +117,7 @@ namespace Lab1
                     sw.Start();
 
                     //float[,,] pixels = CLRWrapper.Lab1Wrapper.decodeJPEGStatic(filePath);
-                    float[,,] pixels = CLRWrapper.Lab1Wrapper.decodeJPEGStatic(arr);
+                    float[, ,] pixels = CLRWrapper.Lab1Wrapper.decodeJPEGStatic(arr);
 
                     sw.Stop();
                     double curDecodeTime = sw.Elapsed.Milliseconds / 1000.0;
@@ -120,6 +126,7 @@ namespace Lab1
                     int fullSize = myImg.width * myImg.height * 3;
                     int compSize = arr.Length;
                     double curCompRatio = compSize / (double)fullSize;
+                    curCompRatio = 1 / curCompRatio;
                     double curSymmetry = curEncodeTime / curDecodeTime;
                     curValues[2] = curSymmetry;
                     curValues[3] = curCompRatio;
@@ -139,40 +146,65 @@ namespace Lab1
                     double curPsnr = 10 * Math.Log10(1 / mse);
                     curValues[4] = curPsnr;
 
-                    curRowIndex = statGridView.Rows.Add();
-                    statGridView.Rows[curRowIndex].Cells[0].Value = curImgName;
+                    tableValues[si, i, 0] = curImgName;
 
                     for (int ind = 0; ind < 5; ind++)
                     {
-                        statGridView.Rows[curRowIndex].Cells[1 + ind].Value = curValues[ind].ToString();
+                        tableValues[si, i, ind + 1] = curValues[ind].ToString();
                         minValues[ind] = Math.Min(minValues[ind], curValues[ind]);
                         maxValues[ind] = Math.Max(maxValues[ind], curValues[ind]);
                         avgValues[ind] += curValues[ind];
                     }
                 }
 
-                curRowIndex = statGridView.Rows.Add();
-                statGridView.Rows[curRowIndex].Cells[0].Value = "Min";
+                int tti = imagesList.Count;
+                tableValues[si, tti, 0] = "Min";
 
                 for (int ind = 0; ind < 5; ind++)
                 {
-                    statGridView.Rows[curRowIndex].Cells[1 + ind].Value = minValues[ind].ToString();
+                    tableValues[si, tti, 1 + ind] = minValues[ind].ToString();
                 }
 
-                curRowIndex = statGridView.Rows.Add();
-                statGridView.Rows[curRowIndex].Cells[0].Value = "Max";
 
+                tti++;
+                tableValues[si, tti, 0] = "Max";
+                
                 for (int ind = 0; ind < 5; ind++)
                 {
-                    statGridView.Rows[curRowIndex].Cells[1 + ind].Value = maxValues[ind].ToString();
+                    tableValues[si, tti, 1 + ind] = maxValues[ind].ToString();
                 }
 
-                curRowIndex = statGridView.Rows.Add();
-                statGridView.Rows[curRowIndex].Cells[0].Value = "Avg";
+                tti++;
+                tableValues[si, tti, 0] = "Avg";
 
                 for (int ind = 0; ind < 5; ind++)
                 {
-                    statGridView.Rows[curRowIndex].Cells[1 + ind].Value = (avgValues[ind] / imagesList.Count).ToString();
+                    tableValues[si, tti, 1 + ind] = (avgValues[ind] / imagesList.Count).ToString();
+                }
+            });
+
+            totalStopWatch.Stop();
+
+            testsRunTimeLabel.Text = (totalStopWatch.ElapsedMilliseconds / 1000.0).ToString();
+
+            statGridView.Rows.Add(tableValues.GetLength(0) * (tableValues.GetLength(1) + 1));
+
+            int curRowIndex = 0;
+
+            for (int i = 0; i < jpegSettings.Count; i++)
+            {
+                JPEGSettings curSettings = (JPEGSettings)jpegSettings[i];
+                string settingsString = jpegSettingsToString(curSettings);
+                statGridView.Rows[curRowIndex].Cells[0].Value = settingsString;
+                curRowIndex++;
+
+                for (int j = 0; j < tableValues.GetLength(1); j++)
+                {
+                    for (int k = 0; k < tableValues.GetLength(2); k++)
+                    {
+                        statGridView.Rows[curRowIndex].Cells[k].Value = tableValues[i, j, k];
+                    }
+                    curRowIndex++;
                 }
             }
         }
@@ -187,7 +219,7 @@ namespace Lab1
         {
             ArrayList settings = new ArrayList();
 
-            int[] qualityFactors = { 10, 25, 50, 75, 90, 99 };
+            int[] qualityFactors = { 10, 25, 50, 75, 90, 99, 100 };
             //int[] qualityFactors = { 90 };
 
             int[] verticalSubsamplingFactorsY = { 2, 1, 1 };
