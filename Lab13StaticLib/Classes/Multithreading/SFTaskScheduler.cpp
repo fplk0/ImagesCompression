@@ -13,7 +13,6 @@ SFTaskScheduler* SFTaskScheduler::singleInstance()
 		GetSystemInfo( &sysinfo );
 
 		cpuCount = sysinfo.dwNumberOfProcessors;
-		cpuCount = 8;
 		printf("%d\n\n", cpuCount);
 
 		singleton = SFTaskScheduler::alloc()->initWithMaxThreadsCount(cpuCount);
