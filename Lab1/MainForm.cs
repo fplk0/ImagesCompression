@@ -162,26 +162,35 @@ namespace Lab1
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.FileOk += fileOkHandler;
-            openFileDialog.ShowDialog();
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string[] splitted = openFileDialog.FileName.Split('.');
+                string fileExt = splitted[splitted.Length - 1];
+                if (fileExt == "jpg" || fileExt == "jpeg")
+                {
+                    float[, ,] pixels = CLRWrapper.Lab1Wrapper.decodeJPEGStatic(openFileDialog.FileName);
+                    Image img = new Image(pixels, new ColorSpaceRGB());
+                    originalImage = img.convertToBitmap();
+                }
+                else
+                {
+                    try
+                    {
+                        originalImage = System.Drawing.Image.FromFile(openFileDialog.FileName);
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show("Image is invalid");
+                    }
+                }
 
-            float[,,] pixels = CLRWrapper.Lab1Wrapper.decodeJPEGStatic(openFileDialog.FileName);
-            Image img = new Image(pixels, new ColorSpaceRGB());
-            originalImage = img.convertToBitmap();
+                originalImageBox.Image = originalImage;
 
-            //try
-            //{
-            //    originalImage = System.Drawing.Image.FromFile(openFileDialog.FileName);
-            //}
-            //catch (Exception )
-            //{
-            //    MessageBox.Show("Image is invalid");
-            //}
-            originalImageBox.Image = originalImage;
+                if (originalFIForm != null)
+                    originalFIForm.setImage(originalImage);
 
-            if (originalFIForm != null)
-                originalFIForm.setImage(originalImage);
-
-            this.controlsChanged();
+                this.controlsChanged();
+            }
         }
 
         private void fileOkHandler(object sender, CancelEventArgs e)
@@ -363,6 +372,14 @@ namespace Lab1
         private void statisticsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             (new StatisticsForm()).Show();
+        }
+
+        private void saveImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ConvertImageForm form = new ConvertImageForm();
+            form.imageToConvert = myModifiedImage;
+
+            form.Show();
         }
     }
 }

@@ -6,6 +6,7 @@
 #include "SFFileStreamReader.h"
 #include "SFFileStreamWriter.h"
 #include "SFMemoryStreamWriter.h"
+#include "SFMemoryStreamReader.h"
 
 #include "SFImage.h"
 #include "ColorSpaceRGB.h"
@@ -87,6 +88,19 @@ namespace CLRWrapper
 		img->release();
 	}
 
+	static cli::array<float, 3>^ decodeJPEGStatic(SFStreamReader *reader)
+	{
+		JPEGCodec *codec = JPEGCodec::alloc()->init();
+		codec->setSourceStream(reader);
+		codec->runDecode();
+		SFImage *img = codec->getImage();
+
+		cli::array<float, 3>^ pixels = convertImageToPixels(img);
+		codec->release();
+
+		return pixels;
+	}
+
 	public:
 
 		static cli::array<float, 3>^ decodeJPEGStatic(System::String ^filePath)
@@ -97,17 +111,26 @@ namespace CLRWrapper
 			wstring path(ptr);
 			SFFileStreamReader *reader = SFFileStreamReader::alloc()->initWithFileName(path);
 
-			JPEGCodec *codec = JPEGCodec::alloc()->init();
-			codec->setSourceStream(reader);
-			codec->runDecode();
-			SFImage *img = codec->getImage();
-
-			cli::array<float, 3>^ pixels = convertImageToPixels(img);
+			cli::array<float, 3>^ retValue = decodeJPEGStatic(reader);
 
 			reader->release();
-			codec->release();
+			
+			return retValue;
+		}
 
-			return pixels;
+		static cli::array<float, 3>^ decodeJPEGStatic(cli::array<byte> ^buf)
+		{
+			pin_ptr<byte> ptr = &buf[0];
+			SFData *data = SFData::alloc()->initWithData(ptr, buf->Length, false);
+
+			SFMemoryStreamReader *reader = SFMemoryStreamReader::alloc()->initWithData(data);
+
+			cli::array<float, 3>^ retValue = decodeJPEGStatic(reader);
+
+			reader->release();
+			data->release();
+			
+			return retValue;
 		}
 
 		static void encodeJPEGStatic(cli::array<float, 3> ^pixels, System::String ^filePath, JPEGSettings ^qualitySettings)

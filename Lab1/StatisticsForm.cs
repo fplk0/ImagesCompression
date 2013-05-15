@@ -110,7 +110,8 @@ namespace Lab1
 
                     sw.Start();
 
-                    float[,,] pixels = CLRWrapper.Lab1Wrapper.decodeJPEGStatic(filePath);
+                    //float[,,] pixels = CLRWrapper.Lab1Wrapper.decodeJPEGStatic(filePath);
+                    float[,,] pixels = CLRWrapper.Lab1Wrapper.decodeJPEGStatic(arr);
 
                     sw.Stop();
                     double curDecodeTime = sw.Elapsed.Milliseconds / 1000.0;
