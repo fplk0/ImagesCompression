@@ -15,6 +15,7 @@ public:
 	
 	static const int defaultCodeLength = 16;
 
+	virtual LZWCodec* initWithStreams(SFStreamReader *sourceStream = NULL, SFStreamWriter *destStream = NULL);
 	virtual LZWCodec* initWithFileNames(const wstring &sourceFileName = L"", const wstring &destinationFileName = L"");
 
 	int maxCodeLength;

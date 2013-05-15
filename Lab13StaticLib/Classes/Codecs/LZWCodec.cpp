@@ -6,6 +6,13 @@ using namespace std;
 
 DEFINE_OBJECT_IMPL(LZWCodec);
 
+LZWCodec* LZWCodec::initWithStreams(SFStreamReader *sourceStream, SFStreamWriter *destStream)
+{
+	super::initWithStreams(sourceStream, destStream);
+	this->maxCodeLength = defaultCodeLength;
+	return this;
+}
+
 LZWCodec* LZWCodec::initWithFileNames(const wstring &sourceFileName, const wstring &destinationFileName)
 {
 	LZWCodec *rv = static_cast<LZWCodec*>(super::initWithFileNames(sourceFileName, destinationFileName));

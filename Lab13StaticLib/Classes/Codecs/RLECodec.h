@@ -18,8 +18,8 @@ private:
 
 public:
 
-	void runEncode();
-	void runDecode();
+	virtual void runEncode();
+	virtual void runDecode();
 
 	virtual ~RLECodec(void);
 };

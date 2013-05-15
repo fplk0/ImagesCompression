@@ -44,7 +44,7 @@ class SFTaskScheduler :
 	queue<TaskWithType> tasksQueue;
 
 	int currentThreadsCount;
-	set<HANDLE> threadsPool;
+	//set<HANDLE> threadsPool;
 
 	static DWORD WINAPI threadProcessor(void *param);
 private:

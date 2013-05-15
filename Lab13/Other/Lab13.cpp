@@ -170,8 +170,8 @@ void testCodec(GenericCodec *codec, FILE *dumpFile, wstring outputPath)
 
 	paths.push_back(L"hamlet.txt");
 	paths.push_back(L"bodyBuild.txt");
-	paths.push_back(L"druidTree.jpg");
-	paths.push_back(L"maelstromBig.jpg");
+	paths.push_back(L"druidTree.bmp");
+	paths.push_back(L"word.bmp");
 	paths.push_back(L"maelstromBig.bmp");
 
 	for (int i = 0; i < paths.size(); i++)
@@ -220,6 +220,7 @@ void testCodec(GenericCodec *codec, FILE *dumpFile, wstring outputPath)
 		writer->release();
 
 		double compRat = encodedSize / (double)sourceSize;
+		compRat = 1 / compRat;
 
 		fwprintf(dumpFile, L"%20s %lf %lf %lf %lf\n", curPath.c_str(), encodeTime, decodeTime, encodeTime / decodeTime, compRat);
 	}

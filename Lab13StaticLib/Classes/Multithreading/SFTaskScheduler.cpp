@@ -72,7 +72,8 @@ void SFTaskScheduler::addTask(SFTask *task, int taskTypeIndex)
 	if (currentThreadsCount < maxConcurrentTasksCount && tasksQueue.size() > currentThreadsCount)
 	{
 		currentThreadsCount++;
-		CreateThread(NULL, 0, threadProcessor, this, 0, 0);
+		HANDLE newThreadHandle = CreateThread(NULL, 0, threadProcessor, this, 0, 0);
+		CloseHandle(newThreadHandle);
 	}
 
 	ReleaseMutex(taskSchedulerMutex);
