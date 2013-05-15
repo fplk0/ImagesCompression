@@ -9,7 +9,7 @@ namespace Lab1
 {
     public class Image
     {
-        float[, ,] imagePixels;
+        public float[, ,] imagePixels;
         ColorSpace _colorSpace;
 
         int _originalWidth, _originalHeight;

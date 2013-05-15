@@ -85,11 +85,7 @@ namespace Lab1
 
             //ImageProcessingManager.singleInstance.Ca
 
-            //ColorSpace cs = colorSpaces[colorSpacePickerComboBox.SelectedIndex];
-            ColorSpace cs = new ColorSpaceGS();
-            cs = new ColorSpaceGS();
-            cs = new ColorSpaceGS();
-            cs = new ColorSpaceGS();
+            ColorSpace cs = colorSpaces[colorSpacePickerComboBox.SelectedIndex];
             ImageProcessing imgProc = new ImageProcessing(originalImage, cs);
             currentImageProcessing = imgProc;
 
@@ -223,21 +219,16 @@ namespace Lab1
         public void didFinishImageProcessing(ImageProcessing imageProcessing)
         {
             Image resultImage = imageProcessing.resultImage;
-            
-            int lightPixels = 0;
-            
-            for (int i = 0; i < resultImage.width; i++)
-                for (int j = 0; j < resultImage.height; j++)
-                {
-                    if (resultImage.getPixel(i, j, 0) >= 0.5)
-                        lightPixels++;
-                }
+
+            System.Drawing.Bitmap bmp = resultImage.convertToBitmap();
 
             Func<int> handler = () =>
             {
-                int totalPixelsCount = resultImage.width * resultImage.height;
-                double proportion = (totalPixelsCount - lightPixels) / (double)totalPixelsCount;
-                darkPixelsPercentLabel.Text = "Dark pixels percent: " + proportion;
+                myModifiedImage = resultImage;
+                modifiedImage = bmp;
+                modifiedImageBox.Image = modifiedImage;
+                if (fiForm != null)
+                    fiForm.setImage(modifiedImage);
                 return 0;
             };
             this.BeginInvoke(handler);
@@ -367,6 +358,11 @@ namespace Lab1
         private void numericUpDown1_Enter(object sender, EventArgs e)
         {
 
+        }
+
+        private void statisticsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            (new StatisticsForm()).Show();
         }
     }
 }
