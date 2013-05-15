@@ -164,8 +164,115 @@ void testDct()
 
 }
 
+void testCodec(GenericCodec *codec, FILE *dumpFile, wstring outputPath)
+{
+	vector<wstring> paths;
+
+	paths.push_back(L"hamlet.txt");
+	paths.push_back(L"bodyBuild.txt");
+	paths.push_back(L"druidTree.jpg");
+	paths.push_back(L"maelstromBig.jpg");
+	paths.push_back(L"maelstromBig.bmp");
+
+	for (int i = 0; i < paths.size(); i++)
+	{
+		wstring curPath = paths[i];
+		wstring fullPath = wstring(L"Resources/").append(curPath);
+		wstring pathInOutput = wstring(outputPath).append(curPath);
+		
+		wstring pathInOutputEncoded = wstring(pathInOutput).append(L".encoded");
+
+		SFFileStreamReader *reader = SFFileStreamReader::alloc()->initWithFileName(fullPath);
+		SFFileStreamWriter *writer = SFFileStreamWriter::alloc()->initWithFileName(pathInOutputEncoded);
+
+		reader->openStream();
+		int sourceSize = reader->streamSize();
+
+		codec->setSourceStream(reader);
+		codec->setDestinationStream(writer);
+
+		clock_t cl = clock();
+
+		codec->runEncode();
+
+		double encodeTime = (clock() - cl) / (double)CLOCKS_PER_SEC;
+
+		reader->release();
+		writer->release();
+
+		reader = SFFileStreamReader::alloc()->initWithFileName(pathInOutputEncoded);
+		writer = SFFileStreamWriter::alloc()->initWithFileName(pathInOutput);
+
+		reader->openStream();
+
+		int encodedSize = reader->streamSize();
+
+		codec->setSourceStream(reader);
+		codec->setDestinationStream(writer);
+
+		cl = clock();
+
+		codec->runDecode();
+
+		double decodeTime = (clock() - cl) / (double)CLOCKS_PER_SEC;
+
+		reader->release();
+		writer->release();
+
+		double compRat = encodedSize / (double)sourceSize;
+
+		fwprintf(dumpFile, L"%20s %lf %lf %lf %lf\n", curPath.c_str(), encodeTime, decodeTime, encodeTime / decodeTime, compRat);
+	}
+}
+
+void testSimpleAlgos()
+{
+	FILE *dumpFile;// = fopen("Resources/dump.txt", "r");
+	_wfopen_s(&dumpFile, L"Resources/dump.txt", L"w");
+
+	fwprintf(dumpFile, L"FileName -- Encode time -- Decode time -- Symmetry -- Comp ratio");
+
+	wstring path;
+
+	GenericCodec *codec;
+
+	codec = HuffmanCodec::alloc()->initWithStreams(NULL, NULL);
+	path = L"Resources/huffman/";
+
+	fwprintf(dumpFile, L"\n\nHuffman\n");
+
+	testCodec(codec, dumpFile, path);
+
+	codec->release();
+
+
+	codec = LZWCodec::alloc()->initWithStreams(NULL, NULL);
+	path = L"Resources/lzw/";
+
+	fwprintf(dumpFile, L"\n\nLZW\n");
+
+	testCodec(codec, dumpFile, path);
+
+	codec->release();
+
+
+	codec = RLECodec::alloc()->initWithStreams(NULL, NULL);
+	path = L"Resources/rle/";
+
+	fwprintf(dumpFile, L"\n\nRLE\n");
+
+	testCodec(codec, dumpFile, path);
+
+	codec->release();
+
+
+	fclose(dumpFile);
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
+	testSimpleAlgos();
+	return 0;
 	//testDct();
 	//return 0;
 

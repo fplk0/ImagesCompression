@@ -108,6 +108,12 @@
     <Compile Include="ColorChannelControl.Designer.cs">
       <DependentUpon>ColorChannelControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="ConvertImageForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConvertImageForm.Designer.cs">
+      <DependentUpon>ConvertImageForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="FullImageForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -136,6 +142,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StatisticsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StatisticsForm.Designer.cs">
+      <DependentUpon>StatisticsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="UserControl1.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -144,6 +156,9 @@
     </Compile>
     <EmbeddedResource Include="ColorChannelControl.resx">
       <DependentUpon>ColorChannelControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ConvertImageForm.resx">
+      <DependentUpon>ConvertImageForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FullImageForm.resx">
       <DependentUpon>FullImageForm.cs</DependentUpon>
@@ -160,6 +175,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="StatisticsForm.resx">
+      <DependentUpon>StatisticsForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
