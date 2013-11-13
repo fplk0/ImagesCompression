@@ -1,6 +1,7 @@
 #pragma once
 #include "SFObject.h"
 #include <string>
+#include <algorithm>
 
 using namespace std;
 

@@ -1,11 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lab13", "Lab13\Lab13.vcxproj", "{2762EF6B-104F-40A8-9931-5E421C37C17F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{71DC2442-4317-4E8A-83E1-EA9071EA1F0B} = {71DC2442-4317-4E8A-83E1-EA9071EA1F0B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lab13StaticLib", "Lab13StaticLib\Lab13StaticLib.vcxproj", "{71DC2442-4317-4E8A-83E1-EA9071EA1F0B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CLRWrapper", "CLRWrapper\CLRWrapper.vcxproj", "{A6299E94-CBAB-4E1B-ABC1-9753A0391E16}"
+	ProjectSection(ProjectDependencies) = postProject
+		{71DC2442-4317-4E8A-83E1-EA9071EA1F0B} = {71DC2442-4317-4E8A-83E1-EA9071EA1F0B}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab1", "Lab1\Lab1.csproj", "{6FAAB126-8661-4830-B5EF-637D2140E124}"
 EndProject

@@ -52,7 +52,11 @@ void SFData::resize(size_t newSize)
 {
 	if (_isAllocated)
 	{
-		data = static_cast<byte*>(realloc(data, newSize));
+		byte *newData = static_cast<byte*>(realloc(data, newSize));
+		if (newData != NULL)
+		{
+			data = newData;
+		}
 		len = newSize;
 	}
 }

@@ -595,7 +595,7 @@ void JPEGCodec::_buildHuffmanEncodeTable(HuffmanEncodeInfo *huffmanPtr, int *fre
 			if (curPtr < 257)
 				smallestCurVal = sortedCodes[curPtr].first;
 			int smallestPrevVal = (int)1e9;
-			int prevRoundInd;
+			int prevRoundInd = 0;
 			if (prevPtr < prevRoundLength[cur])
 			{
 				prevRoundInd = prevRoundList[cur][prevPtr];

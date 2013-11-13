@@ -32,7 +32,7 @@ void RLECodec::runEncode()
 	int MAXSAME = MAXSIZE + 1;
 	byte buf[MAXSIZE+5];
 	int pos = 0;
-	bool same;
+	bool same = false;
 	int sameCount = 0;
 
 	while (!reader->atEnd())
